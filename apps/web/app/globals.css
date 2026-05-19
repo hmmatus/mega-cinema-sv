@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cinema-primary: oklch(48.8% 0.243 264.376);
+  --color-cinema-secondary: oklch(62.7% 0.194 149.214);
+  --color-cinema-danger: oklch(57.7% 0.245 27.325);
+}
