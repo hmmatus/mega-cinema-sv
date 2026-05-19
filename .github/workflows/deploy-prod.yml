@@ -1,0 +1,86 @@
+name: Deploy Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-api-prod:
+    name: Trigger Render Production Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"clearCache": false}' \
+            "https://api.render.com/v1/services/${{ secrets.RENDER_PROD_SERVICE_ID }}/deploys")
+          echo "Render response: $response"
+          if [ "$response" != "201" ]; then
+            echo "Deploy trigger failed with status $response"
+            exit 1
+          fi
+
+  deploy-web-prod:
+    name: Deploy Web (Customer) to Vercel Production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Deploy Web to Vercel (Production)
+        run: |
+          pnpm dlx vercel \
+            --token=${{ secrets.VERCEL_TOKEN }} \
+            --cwd=apps/web \
+            --prod
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WEB_PROJECT_ID }}
+
+  deploy-admin-prod:
+    name: Deploy Admin to Vercel Production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Deploy Admin to Vercel (Production)
+        run: |
+          pnpm dlx vercel \
+            --token=${{ secrets.VERCEL_TOKEN }} \
+            --cwd=apps/admin \
+            --prod
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_ADMIN_PROJECT_ID }}
