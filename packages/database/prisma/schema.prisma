@@ -261,6 +261,7 @@ model TicketType {
   name            String           @unique
   description     String?
   adjustmentType  AdjustmentType   @default(FIJO) @map("adjustment_type")
+  // PORCENTAJE: value is percentage points (10.00 = 10%). FIJO: absolute USD delta applied to base_price.
   adjustmentValue Decimal          @map("adjustment_value") @db.Decimal(10, 2)
   status          TicketTypeStatus @default(ACTIVO)
   createdAt       DateTime         @default(now()) @map("created_at")
