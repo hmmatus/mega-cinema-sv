@@ -213,6 +213,7 @@ model Seat {
   reservationSeats ReservationSeat[]
 
   @@unique([roomId, rowLabel, seatNumber])
+  @@index([roomId])
   @@map("seats")
 }
 
