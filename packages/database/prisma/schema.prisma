@@ -163,6 +163,7 @@ model User {
   auditLogs        AuditLog[]
   scannedTicketQRs TicketQR[]        @relation("ScannedBy")
 
+  @@index([roleId])
   @@map("users")
 }
 
@@ -195,6 +196,7 @@ model Room {
   seats     Seat[]
   showtimes Showtime[]
 
+  @@index([branchId])
   @@map("rooms")
 }
 
@@ -248,6 +250,8 @@ model Showtime {
   room         Room          @relation(fields: [roomId], references: [id])
   reservations Reservation[]
 
+  @@index([movieId])
+  @@index([roomId])
   @@map("showtimes")
 }
 
@@ -284,6 +288,8 @@ model Reservation {
   payment                Payment?
   ticketQR               TicketQR?
 
+  @@index([userId])
+  @@index([showtimeId])
   @@map("reservations")
 }
 
@@ -294,9 +300,11 @@ model ReservationSeat {
   status        ReservationSeatStatus @default(BLOQUEADO)
   createdAt     DateTime              @default(now()) @map("created_at")
 
-  reservation Reservation @relation(fields: [reservationId], references: [id])
-  seat        Seat        @relation(fields: [seatId], references: [id])
+  reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  seat        Seat        @relation(fields: [seatId], references: [id], onDelete: Restrict)
 
+  @@index([reservationId])
+  @@index([seatId])
   @@map("reservation_seats")
 }
 
@@ -308,9 +316,11 @@ model ReservationTicketType {
   unitPrice     Decimal @map("unit_price") @db.Decimal(10, 2)
   subtotal      Decimal @db.Decimal(10, 2)
 
-  reservation Reservation @relation(fields: [reservationId], references: [id])
-  ticketType  TicketType  @relation(fields: [ticketTypeId], references: [id])
+  reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  ticketType  TicketType  @relation(fields: [ticketTypeId], references: [id], onDelete: Restrict)
 
+  @@index([reservationId])
+  @@index([ticketTypeId])
   @@map("reservation_ticket_types")
 }
 
@@ -326,7 +336,7 @@ model Payment {
   confirmedAt       DateTime?     @map("confirmed_at")
   createdAt         DateTime      @default(now()) @map("created_at")
 
-  reservation Reservation @relation(fields: [reservationId], references: [id])
+  reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Restrict)
 
   @@map("payments")
 }
@@ -340,9 +350,10 @@ model TicketQR {
   usedAt          DateTime? @map("used_at")
   scannedByUserId String?   @map("scanned_by_user_id") @db.Uuid
 
-  reservation   Reservation @relation(fields: [reservationId], references: [id])
-  scannedByUser User?       @relation("ScannedBy", fields: [scannedByUserId], references: [id])
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  scannedByUser User?       @relation("ScannedBy", fields: [scannedByUserId], references: [id], onDelete: SetNull)
 
+  @@index([scannedByUserId])
   @@map("ticket_qrs")
 }
 
@@ -362,5 +373,7 @@ model AuditLog {
   user User @relation(fields: [userId], references: [id])
   role Role @relation(fields: [roleId], references: [id])
 
+  @@index([userId])
+  @@index([roleId])
   @@map("audit_logs")
 }
