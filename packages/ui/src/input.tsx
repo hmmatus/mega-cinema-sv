@@ -1,6 +1,6 @@
 import type { InputHTMLAttributes, ReactNode } from 'react';
 
-export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'id'> {
+export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'id' | 'prefix' | 'suffix'> {
   id: string;
   label: string;
   error?: string;
