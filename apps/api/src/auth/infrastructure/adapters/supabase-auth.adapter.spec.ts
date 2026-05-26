@@ -162,4 +162,19 @@ describe('SupabaseAuthAdapter', () => {
       );
     });
   });
+
+  describe('deleteUser', () => {
+    it('deletes user via admin SDK', async () => {
+      mockAdminAuth.admin.deleteUser = jest.fn().mockResolvedValue({ error: null });
+
+      await expect(adapter.deleteUser('uid-1')).resolves.toBeUndefined();
+      expect(mockAdminAuth.admin.deleteUser).toHaveBeenCalledWith('uid-1');
+    });
+
+    it('throws InternalServerErrorException on error', async () => {
+      mockAdminAuth.admin.deleteUser = jest.fn().mockResolvedValue({ error: { message: 'fail' } });
+
+      await expect(adapter.deleteUser('uid-1')).rejects.toThrow(InternalServerErrorException);
+    });
+  });
 });

@@ -64,4 +64,9 @@ export class SupabaseAuthAdapter implements SupabaseAuthPort {
     const { error } = await this.auth.admin.updateUserById(userId, { password: newPassword });
     if (error) throw new InternalServerErrorException(error.message);
   }
+
+  async deleteUser(userId: string): Promise<void> {
+    const { error } = await this.auth.admin.deleteUser(userId);
+    if (error) throw new InternalServerErrorException(error.message);
+  }
 }

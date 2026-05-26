@@ -19,17 +19,29 @@ export class SignupUseCase {
   ) {}
 
   async execute(input: SignupInput): Promise<User> {
-    const existing = await this.userRepo.findByEmail(input.email);
-    if (existing) throw new ConflictException('Email already registered');
-
     const { id } = await this.supabaseAuth.createUser(input.email, input.password);
 
-    return this.userRepo.create({
-      id,
-      email: input.email,
-      firstName: input.firstName,
-      lastName: input.lastName,
-      preferredLanguage: input.preferredLanguage,
-    });
+    try {
+      return await this.userRepo.create({
+        id,
+        email: input.email,
+        firstName: input.firstName,
+        lastName: input.lastName,
+        preferredLanguage: input.preferredLanguage,
+      });
+    } catch (err: unknown) {
+      await this.supabaseAuth.deleteUser(id).catch(() => undefined);
+
+      // Prisma unique violation (P2002) → email already registered
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'code' in err &&
+        (err as { code: string }).code === 'P2002'
+      ) {
+        throw new ConflictException('Email already registered');
+      }
+      throw err;
+    }
   }
 }

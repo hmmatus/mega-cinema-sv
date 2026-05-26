@@ -6,4 +6,5 @@ export interface SupabaseAuthPort {
   getGoogleOAuthUrl(redirectTo: string): Promise<{ url: string }>;
   sendPasswordResetEmail(email: string): Promise<void>;
   updatePassword(userId: string, newPassword: string): Promise<void>;
+  deleteUser(userId: string): Promise<void>;
 }
