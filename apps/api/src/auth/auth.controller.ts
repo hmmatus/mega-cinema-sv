@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Inject, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Post, Query, UnauthorizedException, UseGuards } from '@nestjs/common';
 import type { User } from '@cinema/database';
 import { JwtAuthGuard } from './auth.guard';
 import { AuthUser, CurrentUser } from './current-user.decorator';
@@ -51,9 +51,10 @@ export class AuthController {
   @Post('sync')
   @UseGuards(JwtAuthGuard)
   syncProfile(@CurrentUser() user: AuthUser, @Body() dto: SyncProfileDto): Promise<User> {
+    if (!user.email) throw new UnauthorizedException('Missing email claim');
     return this.syncProfileUseCase.execute({
       id: user.id,
-      email: user.email ?? '',
+      email: user.email,
       firstName: dto.firstName,
       lastName: dto.lastName,
       preferredLanguage: dto.preferredLanguage,

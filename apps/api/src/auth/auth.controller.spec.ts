@@ -97,6 +97,13 @@ describe('AuthController', () => {
     expect(result).toEqual(user);
   });
 
+  it('POST /auth/sync throws UnauthorizedException when email missing', () => {
+    expect(() =>
+      controller.syncProfile({ id: 'uid-1', email: undefined } as any, { firstName: 'Ana', lastName: 'Lopez' }),
+    ).toThrow('Missing email claim');
+    expect(mockSync.execute).not.toHaveBeenCalled();
+  });
+
   it('POST /auth/reset-password delegates to ResetPasswordUseCase', async () => {
     mockReset.execute.mockResolvedValue(undefined);
 
