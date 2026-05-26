@@ -4,4 +4,12 @@
   --color-cinema-primary: oklch(48.8% 0.243 264.376);
   --color-cinema-secondary: oklch(62.7% 0.194 149.214);
   --color-cinema-danger: oklch(57.7% 0.245 27.325);
+
+  /* MegaCinemaSV design system */
+  --color-ocean: #0047AB;
+  --color-ocean-dark: #003380;
+  --color-ocean-hover: #0052CC;
+  --color-surface-blue: #C7E1FF;
+  --color-sky: #E5F3FF;
+  --color-brand-4: #6A7D91;
 }
