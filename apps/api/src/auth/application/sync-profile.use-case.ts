@@ -16,11 +16,8 @@ export class SyncProfileUseCase {
     @Inject(USER_REPOSITORY) private readonly userRepo: UserRepository,
   ) {}
 
-  async execute(input: SyncProfileInput): Promise<User> {
-    const existing = await this.userRepo.findById(input.id);
-    if (existing) return existing;
-
-    return this.userRepo.create({
+  execute(input: SyncProfileInput): Promise<User> {
+    return this.userRepo.upsertProfile({
       id: input.id,
       email: input.email,
       firstName: input.firstName,

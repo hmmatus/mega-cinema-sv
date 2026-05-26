@@ -23,6 +23,7 @@ const mockPrisma = {
     findUnique: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
+    upsert: jest.fn(),
   },
 };
 
@@ -130,6 +131,42 @@ describe('PrismaUserRepository', () => {
         data: { firstName: 'Updated' },
       });
       expect(result).toEqual(updated);
+    });
+  });
+
+  describe('upsertProfile', () => {
+    it('upserts user with CLIENTE role', async () => {
+      mockPrisma.role.findUnique.mockResolvedValue(mockRole);
+      mockPrisma.user.upsert.mockResolvedValue(mockUser);
+
+      const result = await repo.upsertProfile({
+        id: 'user-uuid',
+        firstName: 'Ana',
+        lastName: 'Lopez',
+        email: 'ana@test.com',
+      });
+
+      expect(mockPrisma.role.findUnique).toHaveBeenCalledWith({ where: { name: 'CLIENTE' } });
+      expect(mockPrisma.user.upsert).toHaveBeenCalledWith({
+        where: { id: 'user-uuid' },
+        update: {},
+        create: {
+          id: 'user-uuid',
+          roleId: 'role-uuid',
+          firstName: 'Ana',
+          lastName: 'Lopez',
+          email: 'ana@test.com',
+          preferredLanguage: 'es',
+        },
+      });
+      expect(result).toEqual(mockUser);
+    });
+
+    it('throws InternalServerErrorException when CLIENTE role not found', async () => {
+      mockPrisma.role.findUnique.mockResolvedValue(null);
+      await expect(
+        repo.upsertProfile({ id: 'x', firstName: 'A', lastName: 'B', email: 'a@b.com' }),
+      ).rejects.toThrow(InternalServerErrorException);
     });
   });
 

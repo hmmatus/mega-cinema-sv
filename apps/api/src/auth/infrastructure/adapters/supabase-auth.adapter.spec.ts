@@ -8,6 +8,7 @@ const mockAdminAuth = {
   admin: {
     createUser: jest.fn(),
     updateUserById: jest.fn(),
+    deleteUser: jest.fn(),
   },
   signInWithPassword: jest.fn(),
   signInWithOAuth: jest.fn(),

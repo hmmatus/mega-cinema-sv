@@ -23,6 +23,7 @@ export interface UserRepository {
   findByIdWithRole(id: string): Promise<UserWithRole | null>;
   findByEmail(email: string): Promise<User | null>;
   create(data: CreateUserData): Promise<User>;
+  upsertProfile(data: CreateUserData): Promise<User>;
   update(id: string, data: UpdateUserData): Promise<User>;
   deactivate(id: string): Promise<User>;
 }

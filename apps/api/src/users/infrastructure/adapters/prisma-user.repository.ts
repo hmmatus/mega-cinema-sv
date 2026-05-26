@@ -37,6 +37,23 @@ export class PrismaUserRepository implements UserRepository {
     });
   }
 
+  async upsertProfile(data: CreateUserData): Promise<User> {
+    const role = await this.prisma.role.findUnique({ where: { name: 'CLIENTE' } });
+    if (!role) throw new InternalServerErrorException('Default role CLIENTE not found. Run: pnpm db:seed');
+    return this.prisma.user.upsert({
+      where: { id: data.id },
+      update: {},
+      create: {
+        id: data.id,
+        roleId: role.id,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        preferredLanguage: data.preferredLanguage ?? 'es',
+      },
+    });
+  }
+
   update(id: string, data: UpdateUserData): Promise<User> {
     return this.prisma.user.update({ where: { id }, data });
   }
