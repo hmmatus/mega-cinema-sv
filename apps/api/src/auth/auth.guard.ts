@@ -26,14 +26,15 @@ export class JwtAuthGuard implements CanActivate {
       this.config.getOrThrow<string>('SUPABASE_ANON_KEY'),
     );
 
+    // pnpm virtual store breaks @supabase/auth-js type chain; cast to any and re-assert shape
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase.auth as any).getUser(token) as {
-      data: { user: unknown };
-      error: unknown;
+      data: { user: { id: string; email?: string } | null };
+      error: { message: string } | null;
     };
 
     if (error || !data.user) {
-      throw new UnauthorizedException('Invalid or expired token');
+      throw new UnauthorizedException(error?.message ?? 'Invalid or expired token');
     }
 
     request.user = data.user;
