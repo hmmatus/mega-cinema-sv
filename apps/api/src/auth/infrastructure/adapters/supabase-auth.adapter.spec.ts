@@ -1,4 +1,4 @@
-import { InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { SupabaseAuthAdapter } from './supabase-auth.adapter';
@@ -33,6 +33,7 @@ describe('SupabaseAuthAdapter', () => {
                 SUPABASE_URL: 'https://example.supabase.co',
                 SUPABASE_ANON_KEY: 'anon-key',
                 SUPABASE_SERVICE_ROLE_KEY: 'service-key',
+                OAUTH_ALLOWED_REDIRECT_ORIGINS: 'https://app.com,http://localhost:3000',
               };
               return map[key];
             },
@@ -116,6 +117,13 @@ describe('SupabaseAuthAdapter', () => {
       await expect(adapter.getGoogleOAuthUrl('https://app.com/callback')).rejects.toThrow(
         InternalServerErrorException,
       );
+    });
+
+    it('throws BadRequestException for untrusted redirect origin', async () => {
+      await expect(adapter.getGoogleOAuthUrl('https://evil.com/callback')).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(mockAdminAuth.signInWithOAuth).not.toHaveBeenCalled();
     });
   });
 

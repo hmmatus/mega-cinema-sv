@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient } from '@supabase/supabase-js';
 import type { SupabaseAuthPort } from '../../domain/ports/supabase-auth.port';
@@ -11,6 +11,7 @@ type AnyAuth = any;
 @Injectable()
 export class SupabaseAuthAdapter implements SupabaseAuthPort {
   private readonly auth: AnyAuth;
+  private readonly allowedRedirectOrigins: Set<string>;
 
   constructor(private readonly config: ConfigService) {
     const client = createClient(
@@ -18,6 +19,11 @@ export class SupabaseAuthAdapter implements SupabaseAuthPort {
       config.getOrThrow('SUPABASE_SERVICE_ROLE_KEY'),
     );
     this.auth = client.auth;
+    this.allowedRedirectOrigins = new Set(
+      config.getOrThrow<string>('OAUTH_ALLOWED_REDIRECT_ORIGINS')
+        .split(',')
+        .map((v) => v.trim()),
+    );
   }
 
   async createUser(email: string, password: string): Promise<{ id: string; email: string }> {
@@ -37,6 +43,10 @@ export class SupabaseAuthAdapter implements SupabaseAuthPort {
   }
 
   async getGoogleOAuthUrl(redirectTo: string): Promise<{ url: string }> {
+    const origin = new URL(redirectTo).origin;
+    if (!this.allowedRedirectOrigins.has(origin)) {
+      throw new BadRequestException('Untrusted redirect origin');
+    }
     const { data, error } = await this.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo, skipBrowserRedirect: true },
