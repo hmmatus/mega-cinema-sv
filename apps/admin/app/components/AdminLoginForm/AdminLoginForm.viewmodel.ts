@@ -5,10 +5,17 @@ import { createClient } from '@supabase/supabase-js';
 import type { AdminLoginFormProps, LoginStatus } from './types';
 import { ERROR_MESSAGES, ALLOWED_ROLES } from './constants';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
+let _supabaseClient: ReturnType<typeof createClient> | null = null;
+
+function getSupabase() {
+  if (!_supabaseClient) {
+    _supabaseClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    );
+  }
+  return _supabaseClient;
+}
 
 export function useAdminLoginForm({ redirectTo = '/' }: AdminLoginFormProps) {
   const router = useRouter();
@@ -26,7 +33,7 @@ export function useAdminLoginForm({ redirectTo = '/' }: AdminLoginFormProps) {
       setStatus('loading');
 
       try {
-        const { data, error: authError } = await supabase.auth.signInWithPassword({
+        const { data, error: authError } = await getSupabase().auth.signInWithPassword({
           email,
           password,
         });
@@ -39,7 +46,7 @@ export function useAdminLoginForm({ redirectTo = '/' }: AdminLoginFormProps) {
 
         const role = data.user.app_metadata?.role as string | undefined;
         if (!role || !(ALLOWED_ROLES as ReadonlyArray<string>).includes(role)) {
-          await supabase.auth.signOut();
+          await getSupabase().auth.signOut();
           setError(ERROR_MESSAGES.noRole);
           setStatus('error');
           return;
