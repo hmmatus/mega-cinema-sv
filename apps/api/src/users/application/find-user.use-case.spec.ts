@@ -24,11 +24,13 @@ describe('FindUserUseCase', () => {
   it('returns user with role when found', async () => {
     mockUserRepo.findByIdWithRole.mockResolvedValue(mockUserWithRole);
     const result = await useCase.execute('uid-1');
+    expect(mockUserRepo.findByIdWithRole).toHaveBeenCalledWith('uid-1');
     expect(result).toEqual(mockUserWithRole);
   });
 
   it('throws NotFoundException when user not found', async () => {
     mockUserRepo.findByIdWithRole.mockResolvedValue(null);
     await expect(useCase.execute('missing')).rejects.toThrow(NotFoundException);
+    expect(mockUserRepo.findByIdWithRole).toHaveBeenCalledWith('missing');
   });
 });
