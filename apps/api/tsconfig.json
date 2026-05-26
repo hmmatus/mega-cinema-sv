@@ -17,9 +17,6 @@
     "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": false,
-    "paths": {
-      "@cinema/shared": ["../../packages/shared/src/index.ts"],
-      "@cinema/database": ["../../packages/database/src/index.ts"]
-    }
+    "preserveSymlinks": true
   }
 }

@@ -6,14 +6,14 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient } from '@supabase/supabase-js';
-import type { Request } from 'express';
+import type { IncomingMessage } from 'http';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(private readonly config: ConfigService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<Request>();
+    const request = context.switchToHttp().getRequest<IncomingMessage & { user?: unknown }>();
     const authHeader = request.headers['authorization'];
 
     if (!authHeader?.startsWith('Bearer ')) {
@@ -26,13 +26,17 @@ export class JwtAuthGuard implements CanActivate {
       this.config.getOrThrow<string>('SUPABASE_ANON_KEY'),
     );
 
-    const { data, error } = await supabase.auth.getUser(token);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase.auth as any).getUser(token) as {
+      data: { user: unknown };
+      error: unknown;
+    };
 
     if (error || !data.user) {
       throw new UnauthorizedException('Invalid or expired token');
     }
 
-    (request as Request & { user: typeof data.user }).user = data.user;
+    request.user = data.user;
     return true;
   }
 }
