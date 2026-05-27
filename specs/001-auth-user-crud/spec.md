@@ -68,7 +68,7 @@ Feature que establece la capa de autenticación del backend usando Supabase Auth
 - **Given:** cualquier endpoint de auth o usuarios recibe una solicitud inválida o falla
 - **When:** el sistema lanza un error (validación, negocio, infra)
 - **Then:** respuesta tiene `Content-Type: application/problem+json`
-- **And:** body sigue estructura RFC 7807: `{ type, title, status, detail, instance }`
+- **And:** body sigue estructura RFC 7807: `{ type, title, status, message, instance }`
 - **And:** `status` coincide con el HTTP status code de la respuesta
 - **And:** `instance` es el path de la request (ej. `/api/auth/signup`)
 
@@ -143,7 +143,7 @@ Feature que establece la capa de autenticación del backend usando Supabase Auth
 
 - [ ] Signup con email que existe en Supabase pero no en DB (usuario huérfano)
 - [ ] Login con credenciales inválidas — Supabase retorna error, API debe retornar 401
-- [ ] `POST /api/auth/sync` con JWT de usuario que no existe en DB — crea o falla?
+- [ ] `POST /api/auth/sync` con JWT de usuario que no existe en DB — retorna 404 Problem Detail `type: /problems/user-not-found` (no crea perfil)
 - [ ] `POST /api/auth/recover-password` con JWT expirado del link de recuperación
 - [ ] Google OAuth con `redirectTo` a dominio no permitido — retorna 400 con Problem Detail `type: /problems/untrusted-redirect`
 - [ ] Errores de validación de DTO — `ProblemExceptionFilter` intercepta el `BadRequestException` de `ValidationPipe` y lo serializa como 422 con `details[]` conteniendo todos los errores de campo

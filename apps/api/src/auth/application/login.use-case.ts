@@ -19,7 +19,15 @@ export class LoginUseCase {
     const result = await this.supabaseAuth.signInWithPassword(input.email, input.password);
 
     const user = await this.userRepo.findById(result.userId);
-    if (user?.status === 'INACTIVE') {
+    if (!user) {
+      throw new HttpProblemException({
+        type: '/problems/user-not-found',
+        title: 'User Not Found',
+        status: 404,
+        message: 'User profile not found.',
+      });
+    }
+    if (user.status === 'INACTIVE') {
       throw new HttpProblemException({
         type: '/problems/account-inactive',
         title: 'Account Inactive',

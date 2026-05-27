@@ -16,7 +16,7 @@ Implementa la capa de autenticación completa en `apps/api` usando Supabase Auth
 
 ## Estado del PR
 
-Este plan es **retroactivo** — el código base ya existe en `feat/back-database-v1`. El plan documenta lo que está construido, lo que debe añadirse y lo que debe corregirse antes de merge.
+> **Nota:** Este plan documenta la feature implementada en `feat/back-database-v1`. Estado: completado.
 
 | Área | Estado |
 |------|--------|
@@ -72,7 +72,7 @@ Este plan es **retroactivo** — el código base ya existe en `feat/back-databas
 
 No se requieren cambios — schema completo ya existe en la rama:
 
-```
+```text
 packages/database/prisma/schema.prisma
   ✅ enum UserStatus { ACTIVE, INACTIVE, SUSPENDED }
   ✅ model Role { id, name (CLIENTE|EMPLOYEE|ADMIN), ... }
@@ -112,7 +112,7 @@ packages/database/prisma/schema.prisma
 
 ### Nuevo (a crear)
 
-```
+```text
 apps/api/src/common/
   exceptions/
     http-problem.exception.ts       ← HttpProblemException class
@@ -133,7 +133,7 @@ apps/api/src/users/
 
 ### Modificado (cambios requeridos)
 
-```
+```text
 apps/api/src/auth/
   auth.controller.ts                ← Reemplazar excepciones NestJS → HttpProblemException
   application/
@@ -196,7 +196,7 @@ interface UserRepository {
 
 ## Flujo de Datos — Login con INACTIVE check
 
-```
+```text
 POST /api/auth/login
   → AuthController.login(dto)
   → LoginUseCase.execute({ email, password })
@@ -213,7 +213,7 @@ POST /api/auth/login
 
 ## Flujo de Datos — Deactivate con ADMIN→ADMIN guard
 
-```
+```text
 PATCH /api/users/:id/deactivate
   → UsersController.deactivate(id, currentUser)
   → DeactivateUserUseCase.execute(targetId, { requesterId, requesterRole })

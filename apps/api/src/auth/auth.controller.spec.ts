@@ -97,10 +97,10 @@ describe('AuthController', () => {
     expect(result).toEqual(user);
   });
 
-  it('POST /auth/sync throws UnauthorizedException when email missing', () => {
-    expect(() =>
+  it('POST /auth/sync throws UnauthorizedException when email missing', async () => {
+    await expect(
       controller.syncProfile({ id: 'uid-1', email: undefined } as any, { firstName: 'Ana', lastName: 'Lopez' }),
-    ).toThrow('Missing email claim');
+    ).rejects.toThrow('Missing email claim');
     expect(mockSync.execute).not.toHaveBeenCalled();
   });
 

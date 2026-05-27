@@ -51,7 +51,7 @@ export class AuthController {
 
   @Post('sync')
   @UseGuards(JwtAuthGuard)
-  syncProfile(@CurrentUser() user: AuthUser, @Body() dto: SyncProfileDto): Promise<User> {
+  async syncProfile(@CurrentUser() user: AuthUser, @Body() dto: SyncProfileDto): Promise<User> {
     if (!user.email) {
       throw new HttpProblemException({
         type: '/problems/unauthorized',
