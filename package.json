@@ -7,7 +7,13 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "db:generate": "turbo db:generate",
-    "format": "prettier --write \"**/*.{ts,tsx,json,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "api:dev": "pnpm --filter @cinema/api dev",
+    "api:build": "pnpm --filter @cinema/api build",
+    "api:start": "pnpm --filter @cinema/api start",
+    "api:test": "pnpm --filter @cinema/api test",
+    "api:test:cov": "pnpm --filter @cinema/api test:cov",
+    "api:lint": "pnpm --filter @cinema/api lint"
   },
   "devDependencies": {
     "turbo": "^2.5.0",
