@@ -116,3 +116,23 @@ Global prefix `/api`. CORS is locked to `WEB_FRONTEND_URL` and `ADMIN_FRONTEND_U
 | QR | Generado → Válido → Escaneado / Usado / Inválido / Expirado |
 | Function | Programada → Reprogramada → Activa → Finalizada / Cancelada |
 | Seat | Disponible → Bloqueado → Reservado → Ocupado |
+
+## Spec-Driven Development (SDD)
+
+All new features follow the SDD workflow via spec-kit. Specs live in `specs/NNN-feature-name/`.
+
+### Workflow (in order)
+
+1. `/speckit.specify` — write `specs/NNN-feature-name/spec.md` (user scenarios, FR, entities, edge cases)
+2. `/speckit.clarify` — resolve `[NEEDS CLARIFICATION]` items before planning
+3. `/speckit.plan` — write `plan.md` (tech stack, schema changes, endpoints, constitution check)
+4. `/speckit.tasks` — write `tasks.md` (ordered tasks, dependencies, `[P]` for parallelizable)
+5. `/speckit.implement` — execute tasks, mark `[x]` as done, run `pnpm lint` + `pnpm test` at end
+
+### Rules
+
+- Never skip spec phase for features touching: payments, QR, seat state machine, auth
+- Mark ambiguities `[NEEDS CLARIFICATION]` — never assume silently
+- User scenarios use `Given/When/Then` with P1/P2/P3 priority
+- Plan must pass constitution check (`specs/constitution.md`) before implementation
+- Schema changes always in Fase 0 of tasks — always run `pnpm db:generate` after
