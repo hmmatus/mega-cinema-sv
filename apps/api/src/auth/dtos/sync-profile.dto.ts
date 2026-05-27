@@ -1,4 +1,4 @@
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import { IsIn, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class SyncProfileDto {
   @IsString()
@@ -10,6 +10,6 @@ export class SyncProfileDto {
   lastName: string;
 
   @IsOptional()
-  @IsString()
+  @IsIn(['es', 'en'])
   preferredLanguage?: string;
 }

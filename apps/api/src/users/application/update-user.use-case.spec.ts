@@ -1,5 +1,5 @@
-import { NotFoundException } from '@nestjs/common';
 import { UpdateUserUseCase } from './update-user.use-case';
+import { HttpProblemException } from '../../common/exceptions/http-problem.exception';
 
 const mockUserRepo = {
   findById: jest.fn(),
@@ -24,9 +24,11 @@ describe('UpdateUserUseCase', () => {
     expect(result).toEqual({ id: 'uid-1', firstName: 'Updated' });
   });
 
-  it('throws NotFoundException when user not found', async () => {
+  it('throws 404 HttpProblemException when user not found', async () => {
     mockUserRepo.findById.mockResolvedValue(null);
-    await expect(useCase.execute('missing', { firstName: 'X' })).rejects.toThrow(NotFoundException);
+    const err = await useCase.execute('missing', { firstName: 'X' }).catch((e) => e);
+    expect(err).toBeInstanceOf(HttpProblemException);
+    expect((err as HttpProblemException).problem.status).toBe(404);
     expect(mockUserRepo.update).not.toHaveBeenCalled();
   });
 });

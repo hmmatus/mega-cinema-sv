@@ -13,4 +13,6 @@ export default {
     '^@cinema/shared$': '<rootDir>/../../../packages/shared/src/index.ts',
     '^@cinema/database$': '<rootDir>/../../../packages/database/src/index.ts',
   },
+  // pnpm hoists some packages to the workspace root — resolve from there
+  modulePaths: ['<rootDir>/../../../node_modules'],
 };

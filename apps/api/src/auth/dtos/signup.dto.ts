@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsIn, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class SignupDto {
   @IsEmail()
@@ -17,6 +17,6 @@ export class SignupDto {
   lastName: string;
 
   @IsOptional()
-  @IsString()
+  @IsIn(['es', 'en'])
   preferredLanguage?: string;
 }

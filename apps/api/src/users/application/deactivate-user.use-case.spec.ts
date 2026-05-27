@@ -1,5 +1,5 @@
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { DeactivateUserUseCase } from './deactivate-user.use-case';
+import { HttpProblemException } from '../../common/exceptions/http-problem.exception';
 
 const mockUserRepo = {
   findByIdWithRole: jest.fn(),
@@ -29,7 +29,7 @@ describe('DeactivateUserUseCase', () => {
     expect(result).toEqual({ id: 'uid-1', status: 'INACTIVE' });
   });
 
-  it('allows ADMIN to deactivate any user', async () => {
+  it('allows ADMIN to deactivate a CLIENTE', async () => {
     mockUserRepo.findByIdWithRole.mockResolvedValue(makeUser('uid-2', 'CLIENTE'));
     mockUserRepo.deactivate.mockResolvedValue({ id: 'uid-2', status: 'INACTIVE' });
 
@@ -38,21 +38,40 @@ describe('DeactivateUserUseCase', () => {
     ).resolves.toBeDefined();
   });
 
-  it('throws ForbiddenException when non-admin deactivates another user', async () => {
+  it('throws 403 HttpProblemException when non-admin deactivates another user', async () => {
     mockUserRepo.findByIdWithRole.mockResolvedValue(makeUser('uid-2', 'CLIENTE'));
 
-    await expect(
-      useCase.execute('uid-2', { requesterId: 'uid-1', requesterRole: 'CLIENTE' }),
-    ).rejects.toThrow(ForbiddenException);
+    const err = await useCase
+      .execute('uid-2', { requesterId: 'uid-1', requesterRole: 'CLIENTE' })
+      .catch((e) => e);
 
+    expect(err).toBeInstanceOf(HttpProblemException);
+    expect((err as HttpProblemException).problem.status).toBe(403);
     expect(mockUserRepo.deactivate).not.toHaveBeenCalled();
   });
 
-  it('throws NotFoundException when target user not found', async () => {
+  it('throws 403 HttpProblemException when ADMIN deactivates another ADMIN', async () => {
+    mockUserRepo.findByIdWithRole.mockResolvedValue(makeUser('uid-2', 'ADMIN'));
+
+    const err = await useCase
+      .execute('uid-2', { requesterId: 'admin-uid', requesterRole: 'ADMIN' })
+      .catch((e) => e);
+
+    expect(err).toBeInstanceOf(HttpProblemException);
+    expect((err as HttpProblemException).problem.status).toBe(403);
+    expect((err as HttpProblemException).problem.type).toBe('/problems/forbidden');
+    expect(mockUserRepo.deactivate).not.toHaveBeenCalled();
+  });
+
+  it('throws 404 HttpProblemException when target user not found', async () => {
     mockUserRepo.findByIdWithRole.mockResolvedValue(null);
 
-    await expect(
-      useCase.execute('missing', { requesterId: 'admin-uid', requesterRole: 'ADMIN' }),
-    ).rejects.toThrow(NotFoundException);
+    const err = await useCase
+      .execute('missing', { requesterId: 'admin-uid', requesterRole: 'ADMIN' })
+      .catch((e) => e);
+
+    expect(err).toBeInstanceOf(HttpProblemException);
+    expect((err as HttpProblemException).problem.status).toBe(404);
+    expect((err as HttpProblemException).problem.type).toBe('/problems/user-not-found');
   });
 });

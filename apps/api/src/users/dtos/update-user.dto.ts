@@ -1,4 +1,4 @@
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import { IsIn, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -12,6 +12,6 @@ export class UpdateUserDto {
   lastName?: string;
 
   @IsOptional()
-  @IsString()
+  @IsIn(['es', 'en'])
   preferredLanguage?: string;
 }
