@@ -1,14 +1,14 @@
-export { PrismaClient } from './generated/client';
-export type { Prisma } from './generated/client';
+export { PrismaClient } from './generated/client/index.js';
+export type { Prisma } from './generated/client/index.js';
 
 // Identity
-export type { Role, User } from './generated/client';
+export type { Role, User } from './generated/client/index.js';
 
 // Venue
-export type { Branch, Room, Seat } from './generated/client';
+export type { Branch, Room, Seat } from './generated/client/index.js';
 
 // Content
-export type { Movie, Showtime, TicketType } from './generated/client';
+export type { Movie, Showtime, TicketType } from './generated/client/index.js';
 
 // Reservations & payments
 export type {
@@ -17,10 +17,10 @@ export type {
   ReservationTicketType,
   Payment,
   TicketQR,
-} from './generated/client';
+} from './generated/client/index.js';
 
 // Audit
-export type { AuditLog } from './generated/client';
+export type { AuditLog } from './generated/client/index.js';
 
 // Enums
 export {
@@ -38,4 +38,4 @@ export {
   QRStatus,
   AdjustmentType,
   TicketTypeStatus,
-} from './generated/client';
+} from './generated/client/index.js';
