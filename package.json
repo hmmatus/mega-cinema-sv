@@ -4,6 +4,9 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "dev:api": "pnpm --filter @cinema/api dev",
+    "dev:web": "pnpm --filter @cinema/web dev",
+    "dev:admin": "pnpm --filter @cinema/admin dev",
     "lint": "turbo lint",
     "test": "turbo test",
     "db:generate": "turbo db:generate",

@@ -9,12 +9,373 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// Starter model — cinema domain models added in feature plans
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+
+  @@map("user_status")
+}
+
+enum MovieStatus {
+  CARTELERA
+  PREVENTA
+  ESTRENO
+  PROXIMA
+  INACTIVA
+
+  @@map("movie_status")
+}
+
+enum ShowtimeStatus {
+  PROGRAMADA
+  REPROGRAMADA
+  ACTIVA
+  FINALIZADA
+  CANCELADA
+
+  @@map("showtime_status")
+}
+
+enum SeatStatus {
+  DISPONIBLE
+  BLOQUEADO
+  RESERVADO
+  OCUPADO
+
+  @@map("seat_status")
+}
+
+enum ReservationStatus {
+  PENDIENTE
+  BLOQUEADA
+  PAGADA
+  EXPIRADA
+  CANCELADA
+
+  @@map("reservation_status")
+}
+
+enum ReservationSeatStatus {
+  BLOQUEADO
+  CONFIRMADO
+  LIBERADO
+
+  @@map("reservation_seat_status")
+}
+
+enum PaymentStatus {
+  PENDIENTE
+  APROBADO
+  RECHAZADO
+  EXPIRADO
+
+  @@map("payment_status")
+}
+
+enum QRStatus {
+  GENERADO
+  VALIDO
+  ESCANEADO
+  USADO
+  INVALIDO
+  EXPIRADO
+
+  @@map("qr_status")
+}
+
+enum RoomStatus {
+  ACTIVA
+  INACTIVA
+  MANTENIMIENTO
+
+  @@map("room_status")
+}
+
+enum BranchStatus {
+  ACTIVA
+  INACTIVA
+
+  @@map("branch_status")
+}
+
+enum SeatType {
+  ESTANDAR
+  VIP
+  PREFERENCIAL
+
+  @@map("seat_type")
+}
+
+enum RoomType {
+  STANDARD
+  IMAX
+  TRES_D
+  CUATRO_DX
+
+  @@map("room_type")
+}
+
+enum AdjustmentType {
+  PORCENTAJE
+  FIJO
+
+  @@map("adjustment_type")
+}
+
+enum TicketTypeStatus {
+  ACTIVO
+  INACTIVO
+
+  @@map("ticket_type_status")
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  users     User[]
+  auditLogs AuditLog[]
+
+  @@map("roles")
+}
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String     @id @default(uuid()) @db.Uuid
+  roleId            String     @map("role_id") @db.Uuid
+  firstName         String     @map("first_name")
+  lastName          String     @map("last_name")
+  email             String     @unique
+  passwordHash      String?    @map("password_hash")
+  status            UserStatus @default(ACTIVE)
+  preferredLanguage String     @default("es") @map("preferred_language")
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
+
+  role             Role              @relation(fields: [roleId], references: [id])
+  reservations     Reservation[]
+  auditLogs        AuditLog[]
+  scannedTicketQRs TicketQR[]        @relation("ScannedBy")
+
+  @@index([roleId])
+  @@map("users")
+}
+
+model Branch {
+  id        String       @id @default(uuid()) @db.Uuid
+  name      String
+  address   String
+  city      String
+  phone     String?
+  status    BranchStatus @default(ACTIVA)
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  rooms Room[]
+
+  @@map("branches")
+}
+
+model Room {
+  id        String     @id @default(uuid()) @db.Uuid
+  branchId  String     @map("branch_id") @db.Uuid
+  name      String
+  capacity  Int
+  roomType  RoomType   @default(STANDARD) @map("room_type")
+  status    RoomStatus @default(ACTIVA)
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  branch    Branch     @relation(fields: [branchId], references: [id])
+  seats     Seat[]
+  showtimes Showtime[]
+
+  @@index([branchId])
+  @@map("rooms")
+}
+
+model Seat {
+  id         String     @id @default(uuid()) @db.Uuid
+  roomId     String     @map("room_id") @db.Uuid
+  rowLabel   String     @map("row_label")
+  seatNumber Int        @map("seat_number")
+  seatType   SeatType   @default(ESTANDAR) @map("seat_type")
+  status     SeatStatus @default(DISPONIBLE)
+  createdAt  DateTime   @default(now()) @map("created_at")
+
+  room             Room              @relation(fields: [roomId], references: [id])
+  reservationSeats ReservationSeat[]
+
+  @@unique([roomId, rowLabel, seatNumber])
+  @@index([roomId])
+  @@map("seats")
+}
+
+model Movie {
+  id               String      @id @default(uuid()) @db.Uuid
+  title            String
+  description      String?
+  durationMinutes  Int         @map("duration_minutes")
+  rating           String?
+  originalLanguage String?     @map("original_language")
+  status           MovieStatus @default(CARTELERA)
+  releaseDate      DateTime?   @map("release_date") @db.Date
+  posterUrl        String?     @map("poster_url")
+  trailerUrl       String?     @map("trailer_url")
+  createdAt        DateTime    @default(now()) @map("created_at")
+  updatedAt        DateTime    @updatedAt @map("updated_at")
+
+  showtimes Showtime[]
+
+  @@map("movies")
+}
+
+model Showtime {
+  id        String         @id @default(uuid()) @db.Uuid
+  movieId   String         @map("movie_id") @db.Uuid
+  roomId    String         @map("room_id") @db.Uuid
+  startAt   DateTime       @map("start_at")
+  endAt     DateTime       @map("end_at")
+  status    ShowtimeStatus @default(PROGRAMADA)
+  basePrice Decimal        @map("base_price") @db.Decimal(10, 2)
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  movie        Movie         @relation(fields: [movieId], references: [id])
+  room         Room          @relation(fields: [roomId], references: [id])
+  reservations Reservation[]
+
+  @@index([movieId])
+  @@index([roomId])
+  @@map("showtimes")
+}
+
+model TicketType {
+  id              String           @id @default(uuid()) @db.Uuid
+  name            String           @unique
+  description     String?
+  adjustmentType  AdjustmentType   @default(FIJO) @map("adjustment_type")
+  // PORCENTAJE: value is percentage points (10.00 = 10%). FIJO: absolute USD delta applied to base_price.
+  adjustmentValue Decimal          @map("adjustment_value") @db.Decimal(10, 2)
+  status          TicketTypeStatus @default(ACTIVO)
+  createdAt       DateTime         @default(now()) @map("created_at")
+
+  reservationTicketTypes ReservationTicketType[]
+
+  @@map("ticket_types")
+}
+
+model Reservation {
+  id           String            @id @default(uuid()) @db.Uuid
+  userId       String            @map("user_id") @db.Uuid
+  showtimeId   String            @map("showtime_id") @db.Uuid
+  status       ReservationStatus @default(PENDIENTE)
+  totalTickets Int               @map("total_tickets")
+  totalAmount  Decimal           @map("total_amount") @db.Decimal(10, 2)
+  currency     String            @default("USD")
+  expiresAt    DateTime          @map("expires_at")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+
+  user                   User                    @relation(fields: [userId], references: [id])
+  showtime               Showtime                @relation(fields: [showtimeId], references: [id])
+  reservationSeats       ReservationSeat[]
+  reservationTicketTypes ReservationTicketType[]
+  payment                Payment?
+  ticketQR               TicketQR?
+
+  @@index([userId])
+  @@index([showtimeId])
+  @@map("reservations")
+}
+
+model ReservationSeat {
+  id            String                @id @default(uuid()) @db.Uuid
+  reservationId String                @map("reservation_id") @db.Uuid
+  seatId        String                @map("seat_id") @db.Uuid
+  status        ReservationSeatStatus @default(BLOQUEADO)
+  createdAt     DateTime              @default(now()) @map("created_at")
+
+  reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  seat        Seat        @relation(fields: [seatId], references: [id], onDelete: Restrict)
+
+  @@index([reservationId])
+  @@index([seatId])
+  @@map("reservation_seats")
+}
+
+model ReservationTicketType {
+  id            String  @id @default(uuid()) @db.Uuid
+  reservationId String  @map("reservation_id") @db.Uuid
+  ticketTypeId  String  @map("ticket_type_id") @db.Uuid
+  quantity      Int
+  unitPrice     Decimal @map("unit_price") @db.Decimal(10, 2)
+  subtotal      Decimal @db.Decimal(10, 2)
+
+  reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  ticketType  TicketType  @relation(fields: [ticketTypeId], references: [id], onDelete: Restrict)
+
+  @@index([reservationId])
+  @@index([ticketTypeId])
+  @@map("reservation_ticket_types")
+}
+
+model Payment {
+  id                String        @id @default(uuid()) @db.Uuid
+  reservationId     String        @unique @map("reservation_id") @db.Uuid
+  provider          String        @default("stripe")
+  providerPaymentId String?       @map("provider_payment_id")
+  amount            Decimal       @db.Decimal(10, 2)
+  currency          String        @default("USD")
+  status            PaymentStatus @default(PENDIENTE)
+  attemptedAt       DateTime?     @map("attempted_at")
+  confirmedAt       DateTime?     @map("confirmed_at")
+  createdAt         DateTime      @default(now()) @map("created_at")
+
+  reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Restrict)
+
+  @@map("payments")
+}
+
+model TicketQR {
+  id              String    @id @default(uuid()) @db.Uuid
+  reservationId   String    @unique @map("reservation_id") @db.Uuid
+  qrCode          String    @unique @map("qr_code")
+  status          QRStatus  @default(GENERADO)
+  generatedAt     DateTime  @default(now()) @map("generated_at")
+  usedAt          DateTime? @map("used_at")
+  scannedByUserId String?   @map("scanned_by_user_id") @db.Uuid
+
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  scannedByUser User?       @relation("ScannedBy", fields: [scannedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([scannedByUserId])
+  @@map("ticket_qrs")
+}
+
+model AuditLog {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  roleId        String   @map("role_id") @db.Uuid
+  entityName    String   @map("entity_name")
+  entityId      String   @map("entity_id") @db.Uuid
+  action        String
+  previousValue Json?    @map("previous_value")
+  newValue      Json?    @map("new_value")
+  metadata      Json?
+  sourceIp      String?  @map("source_ip")
+  eventAt       DateTime @default(now()) @map("event_at")
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@index([userId])
+  @@index([roleId])
+  @@map("audit_logs")
 }
