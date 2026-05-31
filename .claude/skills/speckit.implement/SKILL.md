@@ -44,9 +44,10 @@ Dentro de una fase, ejecutar tareas `[P]` en la misma iteración cuando sea posi
 
 ### API (`apps/api`)
 
-- Módulos NestJS: `feature.module.ts` → `feature.controller.ts` → `feature.service.ts`
-- Guards: `@UseGuards(JwtAuthGuard)` en todos los endpoints protegidos
-- Decoradores: `@CurrentUser()` para acceder al usuario autenticado
+- Módulos NestJS viven en `apps/api/src/features/[feature]/` — nunca en `src/` directamente
+- Estructura por feature: `[feature].module.ts` → `[feature].controller.ts` + `application/` + `domain/ports/` + `infrastructure/adapters/` + `dtos/`
+- Guards: `@UseGuards(JwtAuthGuard)` en endpoints autenticados; `@UseGuards(JwtAuthGuard, RolesGuard)` + `@Roles('admin')` en endpoints con restricción de rol
+- Decoradores: `@CurrentUser()` para acceder al usuario autenticado (`{ id, email, role }`)
 - PrismaService: inyectar por constructor, no instanciar directamente
 - DTOs: usar `class-validator` para validación
 - Roles: verificar que Employee no acceda a datos de pago

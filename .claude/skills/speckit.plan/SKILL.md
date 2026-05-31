@@ -99,7 +99,7 @@ model NuevoModelo {
 | GET | `/api/[path]` | JWT | Cliente | [descripción] |
 | POST | `/api/[path]` | JWT | Admin | [descripción] |
 
-Módulo NestJS: `apps/api/src/[feature]/`  
+Módulo NestJS: `apps/api/src/features/[feature]/`  
 Patrón: `[feature].module.ts` → `[feature].controller.ts` → `[feature].service.ts`
 
 ---
@@ -107,11 +107,16 @@ Patrón: `[feature].module.ts` → `[feature].controller.ts` → `[feature].serv
 ## Estructura de Archivos
 
 ```
-apps/api/src/[feature]/
+apps/api/src/features/[feature]/
   [feature].module.ts
   [feature].controller.ts
-  [feature].service.ts
-  dto/
+  application/
+    [action]-[feature].use-case.ts
+  domain/ports/
+    [feature].repository.ts
+  infrastructure/adapters/
+    prisma-[feature].repository.ts
+  dtos/
     create-[feature].dto.ts
     [feature]-response.dto.ts
 

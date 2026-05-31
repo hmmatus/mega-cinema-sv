@@ -1,7 +1,7 @@
 # API RBAC Design — JWT-based Role Authorization
 
 **Date:** 2026-05-31  
-**Scope:** `apps/api` — `auth/` and `users/` modules  
+**Scope:** `apps/api` — `auth/` and `users/` modules + `src/features/` folder migration  
 **Branch:** `feat/get-user-admin-info`
 
 ---
@@ -158,9 +158,42 @@ This writes `app_metadata.role = 'user'` so every subsequent JWT contains the ro
 
 ---
 
+## Project Structure: `src/features/` Migration
+
+All feature modules move under `src/features/`. This is a one-time migration; every new feature going forward must be created inside `src/features/`.
+
+```
+apps/api/src/
+  features/
+    auth/          ← moved from src/auth/
+      application/
+      domain/ports/
+      infrastructure/adapters/
+      dtos/
+      auth.module.ts
+      auth.guard.ts
+      roles.guard.ts        ← new
+      roles.decorator.ts    ← new
+      current-user.decorator.ts
+    users/         ← moved from src/users/
+      application/
+      domain/ports/
+      infrastructure/adapters/
+      dtos/
+      users.module.ts
+      users.controller.ts
+  common/          ← stays at root (cross-cutting)
+  prisma/          ← stays at root (infrastructure)
+  app.module.ts
+  main.ts
+```
+
+All internal imports updated to reflect new paths. `app.module.ts` imports updated accordingly.
+
+---
+
 ## What does NOT change
 
-- Module folder structure (`auth/`, `users/`) — unchanged
 - Hexagonal layers (`application/`, `domain/ports/`, `infrastructure/adapters/`) — unchanged
 - `PrismaModule` — not touched
 - Supabase JWT validation logic — extended, not replaced
