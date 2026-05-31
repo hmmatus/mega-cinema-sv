@@ -22,15 +22,28 @@ pnpm --filter @cinema/api lint         # tsc --noEmit
 ```
 src/
   main.ts             Bootstrap: global prefix, CORS, port
-  app.module.ts       Root module — imports ConfigModule (global), PrismaModule, AuthModule
+  app.module.ts       Root module — imports ConfigModule (global), PrismaModule, feature modules
   app.controller.ts   Health / root endpoint
-  auth/
-    auth.module.ts
-    auth.guard.ts       JwtAuthGuard — validates Supabase JWT on every protected route
-    current-user.decorator.ts  @CurrentUser() → AuthUser { id, email }
-  prisma/
-    prisma.module.ts    Global module exporting PrismaService
-    prisma.service.ts   Extends PrismaClient, handles onModuleInit/onModuleDestroy
+  common/             Cross-cutting concerns (filters, exceptions) — not a feature
+  prisma/             Global Prisma module — not a feature
+  features/           ALL feature modules live here — no exceptions
+    auth/
+      auth.module.ts
+      auth.guard.ts         JwtAuthGuard — validates Supabase JWT, attaches { id, email, role }
+      roles.guard.ts        RolesGuard — checks @Roles() metadata against request.user.role
+      roles.decorator.ts    @Roles('admin', 'employee', 'user')
+      current-user.decorator.ts  @CurrentUser() → AuthUser { id, email, role }
+      application/
+      domain/ports/
+      infrastructure/adapters/
+      dtos/
+    users/
+      users.module.ts
+      users.controller.ts
+      application/
+      domain/ports/
+      infrastructure/adapters/
+      dtos/
 ```
 
 ## Auth
@@ -38,11 +51,34 @@ src/
 `JwtAuthGuard` is a NestJS guard that:
 1. Reads `Authorization: Bearer <token>` header
 2. Calls `supabase.auth.getUser(token)` (stateless — no local JWT parsing)
-3. Attaches `request.user` as `AuthUser`
+3. Attaches `request.user` as `AuthUser { id, email, role }` — role sourced from `app_metadata.role` in the Supabase JWT
 
-Apply per-controller or per-route with `@UseGuards(JwtAuthGuard)`. Access user in handler with `@CurrentUser() user: AuthUser`.
+Apply per-controller or per-route with `@UseGuards(JwtAuthGuard)`. Access user with `@CurrentUser() user: AuthUser`.
 
-Employee vs Admin role enforcement must be handled in service/guard layer using Supabase user metadata or a roles table (not yet implemented — add as part of RBAC feature work).
+### Role enforcement
+
+Use `RolesGuard` + `@Roles()` decorator for endpoint-level role restriction:
+
+```typescript
+// Any authenticated user
+@UseGuards(JwtAuthGuard)
+@Get('')
+getMe() {}
+
+// Admin only
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin')
+@Delete(':id')
+deactivate() {}
+
+// Admin or employee
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin', 'employee')
+@Get('scan/:qr')
+scanQr() {}
+```
+
+`RolesGuard` reads role from `request.user.role` — no extra DB query.
 
 ## Database
 
@@ -58,17 +94,25 @@ import type { User } from '@cinema/database';
 
 ## Adding a Feature Module
 
+**All features go inside `src/features/`.** Follow hexagonal architecture — screaming architecture folder name reveals the domain.
+
 ```
-src/
+src/features/
   movies/
     movies.module.ts
     movies.controller.ts
-    movies.service.ts
-    dto/
+    application/
+      get-movies.use-case.ts
+      create-movie.use-case.ts
+    domain/ports/
+      movie.repository.ts
+    infrastructure/adapters/
+      prisma-movie.repository.ts
+    dtos/
       create-movie.dto.ts
 ```
 
-Register in `app.module.ts` imports array. Use class-validator DTOs. Keep business logic in the service, not the controller.
+Register in `app.module.ts` imports array. Use class-validator DTOs. Business logic in use cases, not controllers.
 
 ## Domain Specifics
 
