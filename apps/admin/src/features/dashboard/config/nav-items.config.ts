@@ -16,7 +16,7 @@ export interface NavItem {
 }
 
 export const ADMIN_NAV: NavItem[] = [
-  { label: 'Dashboard', href: '/', icon: 'dashboard' },
+  { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
   { label: 'Películas', href: '#', icon: 'movies' },
   { label: 'Banners', href: '#', icon: 'banners' },
   { label: 'Sucursales', href: '#', icon: 'branches' },
@@ -26,7 +26,7 @@ export const ADMIN_NAV: NavItem[] = [
 ];
 
 export const EMPLOYEE_NAV: NavItem[] = [
-  { label: 'Inicio', href: '/', icon: 'dashboard' },
+  { label: 'Inicio', href: '/dashboard', icon: 'dashboard' },
   { label: 'Escanear QR', href: '#', icon: 'qr' },
   { label: 'Reprogramar horarios', href: '#', icon: 'schedule' },
   { label: 'Mis cambios', href: '#', icon: 'changes' },
