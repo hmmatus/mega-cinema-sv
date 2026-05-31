@@ -7,4 +7,5 @@ export interface SupabaseAuthPort {
   sendPasswordResetEmail(email: string): Promise<void>;
   updatePassword(userId: string, newPassword: string): Promise<void>;
   deleteUser(userId: string): Promise<void>;
+  updateUserRole(userId: string, role: string): Promise<void>;
 }

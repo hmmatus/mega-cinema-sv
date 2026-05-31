@@ -69,4 +69,11 @@ export class SupabaseAuthAdapter implements SupabaseAuthPort {
     const { error } = await this.auth.admin.deleteUser(userId);
     if (error) throw new InternalServerErrorException(error.message);
   }
+
+  async updateUserRole(userId: string, role: string): Promise<void> {
+    const { error } = await this.auth.admin.updateUserById(userId, {
+      app_metadata: { role },
+    });
+    if (error) throw new InternalServerErrorException(error.message);
+  }
 }
