@@ -2,7 +2,7 @@
 feature: JWT-based RBAC + src/features/ migration
 spec: specs/002-rbac-jwt/spec.md
 plan: specs/002-rbac-jwt/plan.md
-status: pending
+status: completed
 created: 2026-05-31
 ---
 

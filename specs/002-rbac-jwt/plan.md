@@ -1,7 +1,7 @@
 ---
 feature: JWT-based RBAC + src/features/ migration
 branch: feat/get-user-admin-info
-status: draft
+status: done
 spec: specs/002-rbac-jwt/spec.md
 created: 2026-05-31
 ---
