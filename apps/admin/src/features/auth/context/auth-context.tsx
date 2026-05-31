@@ -10,7 +10,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 function hasSessionCookie(): boolean {
   if (typeof document === 'undefined') return false;
-  return /(?:^|; )cinema_session=/.test(document.cookie);
+  return /(?:^|; )cinema_access_token=/.test(document.cookie);
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
