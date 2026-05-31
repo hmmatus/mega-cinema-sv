@@ -3,7 +3,8 @@ import type { Request } from 'express';
 
 export type AuthUser = {
   id: string;
-  email: string | undefined;
+  email: string;
+  role: string;
 };
 
 export const CurrentUser = createParamDecorator(

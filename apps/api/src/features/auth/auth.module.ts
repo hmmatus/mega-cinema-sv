@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JwtAuthGuard } from './auth.guard';
+import { RolesGuard } from './roles.guard';
 import { AuthController } from './auth.controller';
 import { SupabaseAuthAdapter } from './infrastructure/adapters/supabase-auth.adapter';
 import { SUPABASE_AUTH_PORT } from './domain/ports/supabase-auth.port';
@@ -15,6 +16,7 @@ import { UsersModule } from '../users/users.module';
   controllers: [AuthController],
   providers: [
     JwtAuthGuard,
+    RolesGuard,
     { provide: SUPABASE_AUTH_PORT, useClass: SupabaseAuthAdapter },
     SignupUseCase,
     LoginUseCase,
@@ -22,6 +24,6 @@ import { UsersModule } from '../users/users.module';
     ResetPasswordUseCase,
     RecoverPasswordUseCase,
   ],
-  exports: [JwtAuthGuard],
+  exports: [JwtAuthGuard, RolesGuard, SUPABASE_AUTH_PORT],
 })
 export class AuthModule {}
