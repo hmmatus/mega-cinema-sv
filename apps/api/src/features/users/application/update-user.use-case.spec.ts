@@ -1,5 +1,5 @@
 import { UpdateUserUseCase } from './update-user.use-case';
-import { HttpProblemException } from '../../common/exceptions/http-problem.exception';
+import { HttpProblemException } from '../../../common/exceptions/http-problem.exception';
 
 const mockUserRepo = {
   findById: jest.fn(),

@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import type { User } from '@cinema/database';
-import { PrismaService } from '../../../prisma/prisma.service';
+import { PrismaService } from '../../../../prisma/prisma.service';
 import type { CreateUserData, UpdateUserData, UserRepository, UserWithRole } from '../../domain/ports/user.repository';
 
 @Injectable()

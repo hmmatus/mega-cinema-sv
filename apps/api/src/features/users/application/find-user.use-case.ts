@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { USER_REPOSITORY, UserRepository, UserWithRole } from '../domain/ports/user.repository';
-import { HttpProblemException } from '../../common/exceptions/http-problem.exception';
+import { HttpProblemException } from '../../../common/exceptions/http-problem.exception';
 
 @Injectable()
 export class FindUserUseCase {

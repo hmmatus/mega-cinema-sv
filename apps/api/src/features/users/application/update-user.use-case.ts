@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { User } from '@cinema/database';
 import { UpdateUserData, USER_REPOSITORY, UserRepository } from '../domain/ports/user.repository';
-import { HttpProblemException } from '../../common/exceptions/http-problem.exception';
+import { HttpProblemException } from '../../../common/exceptions/http-problem.exception';
 
 @Injectable()
 export class UpdateUserUseCase {

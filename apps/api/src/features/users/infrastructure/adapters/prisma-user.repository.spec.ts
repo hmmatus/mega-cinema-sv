@@ -1,6 +1,6 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { PrismaService } from '../../../prisma/prisma.service';
+import { PrismaService } from '../../../../prisma/prisma.service';
 import { PrismaUserRepository } from './prisma-user.repository';
 
 const mockRole = { id: 'role-uuid', name: 'CLIENTE' };

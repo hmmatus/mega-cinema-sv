@@ -8,7 +8,7 @@ import { SyncProfileUseCase } from './application/sync-profile.use-case';
 import { ResetPasswordUseCase } from './application/reset-password.use-case';
 import { RecoverPasswordUseCase } from './application/recover-password.use-case';
 import { SUPABASE_AUTH_PORT, SupabaseAuthPort } from './domain/ports/supabase-auth.port';
-import { HttpProblemException } from '../common/exceptions/http-problem.exception';
+import { HttpProblemException } from '../../common/exceptions/http-problem.exception';
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
 import { GoogleAuthDto } from './dtos/google-auth.dto';

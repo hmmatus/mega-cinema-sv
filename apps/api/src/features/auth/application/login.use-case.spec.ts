@@ -1,5 +1,5 @@
 import { LoginUseCase } from './login.use-case';
-import { HttpProblemException } from '../../common/exceptions/http-problem.exception';
+import { HttpProblemException } from '../../../common/exceptions/http-problem.exception';
 
 const mockSupabaseAuth = {
   signInWithPassword: jest.fn(),

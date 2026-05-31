@@ -1,5 +1,5 @@
 import { SyncProfileUseCase } from './sync-profile.use-case';
-import { HttpProblemException } from '../../common/exceptions/http-problem.exception';
+import { HttpProblemException } from '../../../common/exceptions/http-problem.exception';
 
 const mockUser = { id: 'uid-1', email: 'a@b.com', firstName: 'Ana', lastName: 'Lopez' };
 

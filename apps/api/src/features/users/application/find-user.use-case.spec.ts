@@ -1,5 +1,5 @@
 import { FindUserUseCase } from './find-user.use-case';
-import { HttpProblemException } from '../../common/exceptions/http-problem.exception';
+import { HttpProblemException } from '../../../common/exceptions/http-problem.exception';
 
 const mockUserRepo = {
   findByIdWithRole: jest.fn(),

@@ -8,7 +8,7 @@ import { DeactivateUserUseCase } from './application/deactivate-user.use-case';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import type { UserWithRole } from './domain/ports/user.repository';
 
-@Controller('users')
+@Controller("users")
 @UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(
@@ -17,19 +17,25 @@ export class UsersController {
     private readonly deactivateUserUseCase: DeactivateUserUseCase,
   ) {}
 
-  @Get('me')
+  @Get("")
   getMe(@CurrentUser() user: AuthUser): Promise<UserWithRole> {
     return this.findUserUseCase.execute(user.id);
   }
 
-  @Patch('me')
-  updateMe(@CurrentUser() user: AuthUser, @Body() dto: UpdateUserDto): Promise<User> {
+  @Patch("")
+  updateMe(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: UpdateUserDto,
+  ): Promise<User> {
     return this.updateUserUseCase.execute(user.id, dto);
   }
 
-  @Delete(':id')
+  @Delete(":id")
   @HttpCode(200)
-  async deactivate(@CurrentUser() user: AuthUser, @Param('id') targetId: string): Promise<User> {
+  async deactivate(
+    @CurrentUser() user: AuthUser,
+    @Param("id") targetId: string,
+  ): Promise<User> {
     const requester = await this.findUserUseCase.execute(user.id);
     return this.deactivateUserUseCase.execute(targetId, {
       requesterId: user.id,

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { SUPABASE_AUTH_PORT, SupabaseAuthPort } from '../domain/ports/supabase-auth.port';
 import { USER_REPOSITORY, UserRepository } from '../../users/domain/ports/user.repository';
-import { HttpProblemException } from '../../common/exceptions/http-problem.exception';
+import { HttpProblemException } from '../../../common/exceptions/http-problem.exception';
 
 export interface LoginInput {
   email: string;
