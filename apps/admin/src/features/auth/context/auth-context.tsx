@@ -2,8 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useGetUser } from '../hooks/use-get-user';
-import type { ApiError } from '@/src/lib/http-client';
+import { useGetUser } from '@/src/domain/auth/use-get-user';
+import { isApiError } from '@/src/lib/errors';
 import type { AuthContextValue } from '../types/auth.types';
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -20,8 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { data: user, isLoading, error } = useGetUser(enabled);
 
   useEffect(() => {
-    const apiError = error as (ApiError & Error) | null;
-    if (apiError?.status === 401) {
+    if (isApiError(error) && error.status === 401) {
       setEnabled(false);
       router.push('/login');
     }

@@ -1,7 +1,7 @@
 'use client';
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLogin } from '@/src/features/auth/hooks/use-login';
+import { useLogin } from '@/src/domain/auth/use-login';
 import type { AdminLoginFormProps } from './types';
 import { ERROR_MESSAGES } from './constants';
 
