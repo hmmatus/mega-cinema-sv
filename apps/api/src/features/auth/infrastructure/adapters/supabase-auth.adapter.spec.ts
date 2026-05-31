@@ -178,4 +178,23 @@ describe('SupabaseAuthAdapter', () => {
       await expect(adapter.deleteUser('uid-1')).rejects.toThrow(InternalServerErrorException);
     });
   });
+
+  describe('updateUserRole', () => {
+    it('sets app_metadata.role via admin SDK', async () => {
+      mockAdminAuth.admin.updateUserById.mockResolvedValue({ error: null });
+
+      await expect(adapter.updateUserRole('uid-1', 'employee')).resolves.toBeUndefined();
+      expect(mockAdminAuth.admin.updateUserById).toHaveBeenCalledWith('uid-1', {
+        app_metadata: { role: 'employee' },
+      });
+    });
+
+    it('throws InternalServerErrorException on error', async () => {
+      mockAdminAuth.admin.updateUserById.mockResolvedValue({ error: { message: 'fail' } });
+
+      await expect(adapter.updateUserRole('uid-1', 'admin')).rejects.toThrow(
+        InternalServerErrorException,
+      );
+    });
+  });
 });

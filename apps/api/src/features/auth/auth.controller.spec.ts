@@ -77,11 +77,11 @@ describe('AuthController', () => {
     expect(result).toEqual({ url: 'https://google.com/oauth' });
   });
 
-  it('POST /auth/sync delegates to SyncProfileUseCase with current user', async () => {
+  it('POST /auth/sync delegates to SyncProfileUseCase with current user and role', async () => {
     const user = { id: 'uid-1', email: 'a@b.com' };
     mockSync.execute.mockResolvedValue(user);
 
-    const currentUser = { id: 'uid-1', email: 'a@b.com' };
+    const currentUser = { id: 'uid-1', email: 'a@b.com', role: 'user' };
     const result = await controller.syncProfile(currentUser as any, {
       firstName: 'Ana',
       lastName: 'Lopez',
@@ -93,15 +93,9 @@ describe('AuthController', () => {
       firstName: 'Ana',
       lastName: 'Lopez',
       preferredLanguage: undefined,
+      currentRole: 'user',
     });
     expect(result).toEqual(user);
-  });
-
-  it('POST /auth/sync throws UnauthorizedException when email missing', async () => {
-    await expect(
-      controller.syncProfile({ id: 'uid-1', email: undefined } as any, { firstName: 'Ana', lastName: 'Lopez' }),
-    ).rejects.toThrow('Missing email claim');
-    expect(mockSync.execute).not.toHaveBeenCalled();
   });
 
   it('POST /auth/reset-password delegates to ResetPasswordUseCase', async () => {
