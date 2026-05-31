@@ -1,0 +1,1 @@
+export { AdminBrandPanel } from './AdminBrandPanel';
