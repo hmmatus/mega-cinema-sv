@@ -10,7 +10,6 @@ export function useAdminLoginForm({ redirectTo = '/' }: AdminLoginFormProps) {
   const loginMutation = useLogin();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [keepSession, setKeepSession] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
@@ -23,11 +22,14 @@ export function useAdminLoginForm({ redirectTo = '/' }: AdminLoginFormProps) {
         const result = await loginMutation.mutateAsync({ email, password });
 
         // Persist session: httpOnly cookie (middleware guard) + readable cookie (Bearer auth)
-        await fetch('/api/auth/session', {
+        const sessionRes = await fetch('/api/auth/session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ accessToken: result.accessToken }),
         });
+        if (!sessionRes.ok) {
+          throw new Error(ERROR_MESSAGES.connectionError);
+        }
 
         router.push(redirectTo);
       } catch (err) {
@@ -42,8 +44,6 @@ export function useAdminLoginForm({ redirectTo = '/' }: AdminLoginFormProps) {
     setEmail,
     password,
     setPassword,
-    keepSession,
-    setKeepSession,
     showPassword,
     toggleShowPassword: () => setShowPassword((v) => !v),
     error,

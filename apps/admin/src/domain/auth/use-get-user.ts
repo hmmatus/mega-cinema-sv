@@ -9,6 +9,5 @@ export function useGetUser(enabled: boolean) {
     queryKey: authQueryKeys.user(),
     queryFn: getUser,
     enabled,
-    retry: false,
   });
 }

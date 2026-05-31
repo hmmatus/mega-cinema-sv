@@ -8,6 +8,7 @@ export async function POST(request: Request) {
   cookieStore.set('cinema_session', '1', {
     httpOnly: true,
     sameSite: 'strict',
+    secure: process.env.NODE_ENV === 'production',
     path: '/',
     maxAge: 60 * 60 * 24, // 24 h
   });
@@ -16,6 +17,7 @@ export async function POST(request: Request) {
   cookieStore.set('cinema_access_token', accessToken, {
     httpOnly: false,
     sameSite: 'strict',
+    secure: process.env.NODE_ENV === 'production',
     path: '/',
     maxAge: 60 * 60 * 24,
   });

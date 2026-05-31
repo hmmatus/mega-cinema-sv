@@ -27,9 +27,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [error, router]);
 
   const logout = useCallback(async () => {
-    await fetch('/api/auth/session', { method: 'DELETE' });
-    setEnabled(false);
-    router.push('/login');
+    try {
+      await fetch('/api/auth/session', { method: 'DELETE' });
+    } finally {
+      setEnabled(false);
+      router.push('/login');
+    }
   }, [router]);
 
   return (

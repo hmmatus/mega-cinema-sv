@@ -1,6 +1,5 @@
 'use client';
 import { Input } from '@cinema/ui';
-import { Checkbox } from '@cinema/ui';
 import { useAdminLoginForm } from './AdminLoginForm.viewmodel';
 import type { AdminLoginFormProps } from './types';
 
@@ -52,8 +51,6 @@ export function AdminLoginForm({ redirectTo }: AdminLoginFormProps) {
     setEmail,
     password,
     setPassword,
-    keepSession,
-    setKeepSession,
     showPassword,
     toggleShowPassword,
     error,
@@ -124,13 +121,6 @@ export function AdminLoginForm({ redirectTo }: AdminLoginFormProps) {
               required
             />
           </div>
-
-          <Checkbox
-            id="keep-session"
-            label="Mantener sesión activa por 12 horas"
-            checked={keepSession}
-            onChange={(e) => setKeepSession(e.target.checked)}
-          />
 
           {error && (
             <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">

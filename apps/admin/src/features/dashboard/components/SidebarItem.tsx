@@ -80,6 +80,10 @@ function NavIcon({ name }: { name: NavIconName }) {
           <path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" strokeWidth="1.5" />
         </svg>
       );
+    default: {
+      const _exhaustive: never = name;
+      return _exhaustive;
+    }
   }
 }
 
@@ -89,7 +93,10 @@ interface SidebarItemProps {
 
 export function SidebarItem({ item }: SidebarItemProps) {
   const pathname = usePathname();
-  const isActive = pathname === item.href;
+  const isActive =
+    item.href === '/'
+      ? pathname === item.href
+      : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
   return (
     <Link
