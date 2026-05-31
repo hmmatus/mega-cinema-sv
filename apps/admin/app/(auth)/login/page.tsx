@@ -3,10 +3,10 @@ import { AdminBrandPanel } from '@/app/components/AdminBrandPanel';
 import { AdminLoginForm } from '@/app/components/AdminLoginForm';
 
 export const metadata: Metadata = {
-  title: 'Ingreso',
+  title: 'Login',
 };
 
-export default function IngresoPage() {
+export default function LoginPage() {
   return (
     <div className="flex min-h-screen">
       {/* Left: brand panel — hidden on mobile, visible md+ */}
