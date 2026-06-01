@@ -1,301 +1,295 @@
 ---
 name: domain-api
-description: Scaffoldea la capa de datos de un dominio a partir de un spec OpenAPI. Usar cuando el usuario proporcione un spec OpenAPI (o fragmento) con información de endpoints. Genera: schemas Zod (response + input siempre), query/mutation hooks con TanStack Query, fetch/mutation fns separadas, y keys de query. NO ejecutar sin spec OpenAPI.
-version: 1.0.0
+description: Scaffoldea la capa de datos de un dominio en apps/admin. Genera tipos TS, funciones de API (apiClient), keys factory, y hooks React Query. Usar cuando el usuario pida crear un endpoint/servicio/query/mutation para una feature del admin.
+version: 2.0.0
+source: local-repo-analysis
 ---
 
-# Domain API Layer
+# Domain API Layer — apps/admin
 
-Scaffoldea la capa de datos siguiendo el patrón: Zod schemas → types → TanStack Query hooks → axios.
+Patrón de dos capas: **feature API** (funciones axios) + **domain hooks** (React Query).
 
 ## Cuándo aplicar
 
-**Requisito obligatorio:** el usuario debe proporcionar un spec OpenAPI (JSON o YAML) o un fragmento de él con la definición del endpoint. Sin spec, detener y pedirlo.
-
-Casos de uso:
-- "Implementa este endpoint" + spec OpenAPI
-- "Crea el servicio para esta API" + spec OpenAPI
-- "Agrega la query para este endpoint" + spec OpenAPI
+- "Implementa este endpoint en el admin"
+- "Crea la query para listar X"
+- "Agrega la mutation para crear/actualizar/eliminar X"
 
 ---
 
-## Estructura de carpetas
+## Estructura de archivos
 
 ```
-src/domains/<entity_domain>/
-  types/
-    index.ts              — interfaces TS (inferidas de Zod o escritas a mano)
-  schemas/                — SOLO si hay validación en runtime
-    index.ts              — schemas Zod + tipos inferidos
-  consts/
-    keys.ts               — factories de keys para TanStack Query
-  services/
-    queries/
-      use<Domain>Query.ts         — hook con useQuery o useInfiniteQuery
-    mutations/
-      use<Domain>Mutation.ts      — hook con useMutation
+apps/admin/src/
+  features/<feature>/
+    api/
+      <feature>.api.ts     — funciones fetch/mutation usando apiClient
+    types/
+      <feature>.types.ts   — interfaces TypeScript (sin Zod en este proyecto)
+  domain/<feature>/
+    <feature>.keys.ts      — factories de keys para React Query
+    use-<entity>.ts        — hook useQuery (un archivo por query)
+    use-<operation>.ts     — hook useMutation (un archivo por mutation)
 ```
 
-**`<entity_domain>`** = sustantivo en minúsculas, plural, en inglés. Ej: `movies`, `users`, `bookings`.
+**`<feature>`** = sustantivo en minúsculas, singular o plural según el dominio. Ej: `auth`, `movies`, `bookings`.
 
 ---
 
 ## Reglas clave
 
-1. **Spec primero.** Leer el spec antes de escribir cualquier archivo. Extraer: método HTTP, path, params, request body, response body.
-2. **Zod siempre.** Todo response se valida con Zod `.parse()`. Los tipos viven inferidos en `schemas/index.ts` — nunca crear `types/` por separado.
-3. **`queryFn` separada.** La función de fetch se extrae como función nombrada (`fetch<Domain>`) fuera del hook. El hook solo la referencia. Permite reutilización y testing aislado.
-4. **`mutationFn` separada.** Igual que queryFn — función nombrada (`create<Domain>`, `update<Domain>`, etc.) fuera del hook.
-5. **Keys factory** siempre en `consts/keys.ts`.
-6. **Nombre de hooks:** `use<Domain><Operación>Query` o `use<Domain><Operación>Mutation`. Ej: `useMoviesQuery`, `useMovieDetailQuery`, `useCreateMovieMutation`.
-7. **Paginación:** si el endpoint tiene `page`, `cursor`, `offset` → usar `useInfiniteQuery`. Si no → `useQuery`.
-8. **Axios:** importar instancia compartida desde `src/lib/axios.ts`. No crear nuevas instancias dentro del hook.
+1. **`apiClient` siempre.** Importar desde `@/src/config/axios`. Nunca `fetch` directo ni nueva instancia de axios.
+2. **Sin Zod.** Este proyecto usa interfaces TypeScript manuales — no agregar validación Zod en runtime.
+3. **Funciones de API separadas de hooks.** Las funciones `fetchX`/`createX`/`updateX` viven en `features/<feature>/api/`. Los hooks React Query viven en `domain/<feature>/`.
+4. **Keys split.** `<domain>QueryKeys` y `<domain>MutationKeys` como objetos separados en `<feature>.keys.ts`.
+5. **Un archivo por hook.** `use-get-<entity>.ts` para queries, `use-<verb>-<entity>.ts` para mutations.
+6. **Errores automáticos.** El interceptor de axios convierte non-2xx en `ApiError`. No wrappear en try/catch en las funciones de API.
+7. **`mutationKey` obligatorio** en `useMutation` para debugging y deduplication.
 
 ---
 
-## `schemas/index.ts`
+## `features/<feature>/types/<feature>.types.ts`
 
-Siempre. Tanto para responses como para inputs. Los tipos viven inferidos aquí — **nunca crear `types/`**.
+Interfaces TypeScript puras — sin Zod, sin lógica.
 
 ```ts
-// src/domains/movies/schemas/index.ts
-import { z } from 'zod'
+// src/features/movies/types/movies.types.ts
 
-export const movieSchema = z.object({
-  id: z.string().uuid(),
-  title: z.string().min(1),
-  posterUrl: z.string().url(),
-  rating: z.number().min(0).max(10),
-  releaseYear: z.number().int().min(1888),
-})
+export interface Movie {
+  id: string;
+  title: string;
+  posterUrl: string;
+  durationMin: number;
+  releaseYear: number;
+}
 
-export const moviesListResponseSchema = z.object({
-  data: z.array(movieSchema),
-  total: z.number().int(),
-  page: z.number().int(),
-  pageSize: z.number().int(),
-})
+export interface MoviesListResponse {
+  data: Movie[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
 
-export const movieDetailResponseSchema = z.object({
-  data: movieSchema,
-})
-
-export const createMovieInputSchema = z.object({
-  title: z.string().min(1, 'Título requerido'),
-  posterUrl: z.string().url('URL inválida'),
-  rating: z.number().min(0).max(10),
-  releaseYear: z.number().int().min(1888),
-})
-
-// Tipos inferidos — nunca duplicar con interfaces manuales
-export type Movie = z.infer<typeof movieSchema>
-export type MoviesListResponse = z.infer<typeof moviesListResponseSchema>
-export type MovieDetailResponse = z.infer<typeof movieDetailResponseSchema>
-export type CreateMovieInput = z.infer<typeof createMovieInputSchema>
+export interface CreateMovieInput {
+  title: string;
+  posterUrl: string;
+  durationMin: number;
+  releaseYear: number;
+}
 ```
 
 ---
 
-## `consts/keys.ts`
+## `features/<feature>/api/<feature>.api.ts`
+
+Funciones nombradas que usan `apiClient`. Una función por operación.
 
 ```ts
-// src/domains/movies/consts/keys.ts
+// src/features/movies/api/movies.api.ts
+import { apiClient } from '@/src/config/axios';
+import type {
+  Movie,
+  MoviesListResponse,
+  CreateMovieInput,
+} from '../types/movies.types';
 
-export const moviesKeys = {
+export async function getMovies(params?: {
+  page?: number;
+  pageSize?: number;
+}): Promise<MoviesListResponse> {
+  const res = await apiClient.get<MoviesListResponse>('/movies', { params });
+  return res.data;
+}
+
+export async function getMovieById(id: string): Promise<Movie> {
+  const res = await apiClient.get<Movie>(`/movies/${id}`);
+  return res.data;
+}
+
+export async function createMovie(input: CreateMovieInput): Promise<Movie> {
+  const res = await apiClient.post<Movie>('/movies', input);
+  return res.data;
+}
+
+export async function updateMovie(
+  id: string,
+  input: Partial<CreateMovieInput>,
+): Promise<Movie> {
+  const res = await apiClient.patch<Movie>(`/movies/${id}`, input);
+  return res.data;
+}
+
+export async function deleteMovie(id: string): Promise<void> {
+  await apiClient.delete(`/movies/${id}`);
+}
+```
+
+---
+
+## `domain/<feature>/<feature>.keys.ts`
+
+Keys factories separadas por queries y mutations.
+
+```ts
+// src/domain/movies/movies.keys.ts
+
+export const moviesQueryKeys = {
   all: ['movies'] as const,
-  lists: () => [...moviesKeys.all, 'list'] as const,
-  list: (params: Record<string, unknown>) => [...moviesKeys.lists(), params] as const,
-  details: () => [...moviesKeys.all, 'detail'] as const,
-  detail: (id: string) => [...moviesKeys.details(), id] as const,
-}
-```
+  list: (params?: Record<string, unknown>) =>
+    [...moviesQueryKeys.all, 'list', params] as const,
+  detail: (id: string) => [...moviesQueryKeys.all, 'detail', id] as const,
+} as const;
 
-Patrón de naming: `<domain>Keys` en camelCase.
+export const moviesMutationKeys = {
+  create: () => ['movies', 'create'] as const,
+  update: () => ['movies', 'update'] as const,
+  delete: () => ['movies', 'delete'] as const,
+} as const;
+```
 
 ---
 
-## Query hook — `useQuery`
-
-La función de fetch vive **fuera** del hook como función nombrada. El hook solo la referencia.
+## Hook — `useQuery`
 
 ```ts
-// src/domains/movies/services/queries/useMoviesQuery.ts
-import { useQuery } from '@tanstack/react-query'
-import axios from '@/lib/axios'
-import { moviesListResponseSchema, type MoviesListResponse } from '../../schemas'
-import { moviesKeys } from '../../consts/keys'
+// src/domain/movies/use-get-movies.ts
+'use client';
 
-interface UseMoviesQueryParams {
-  page?: number
-  pageSize?: number
+import { useQuery } from '@tanstack/react-query';
+import { getMovies } from '@/src/features/movies/api/movies.api';
+import { moviesQueryKeys } from './movies.keys';
+
+interface UseGetMoviesParams {
+  page?: number;
+  pageSize?: number;
+  enabled?: boolean;
 }
 
-async function fetchMovies(params: UseMoviesQueryParams): Promise<MoviesListResponse> {
-  const { data } = await axios.get('/movies', { params })
-  return moviesListResponseSchema.parse(data)
-}
-
-export function useMoviesQuery(params: UseMoviesQueryParams = {}) {
+export function useGetMovies({ page, pageSize, enabled = true }: UseGetMoviesParams = {}) {
   return useQuery({
-    queryKey: moviesKeys.list(params),
-    queryFn: () => fetchMovies(params),
-  })
+    queryKey: moviesQueryKeys.list({ page, pageSize }),
+    queryFn: () => getMovies({ page, pageSize }),
+    enabled,
+  });
 }
 ```
 
 ---
 
-## Query hook — `useInfiniteQuery` (cuando hay paginación)
+## Hook — `useQuery` con param requerido
 
 ```ts
-// src/domains/movies/services/queries/useMoviesInfiniteQuery.ts
-import { useInfiniteQuery } from '@tanstack/react-query'
-import axios from '@/lib/axios'
-import { moviesListResponseSchema, type MoviesListResponse } from '../../schemas'
-import { moviesKeys } from '../../consts/keys'
+// src/domain/movies/use-get-movie.ts
+'use client';
 
-async function fetchMoviesPage(page: number): Promise<MoviesListResponse> {
-  const { data } = await axios.get('/movies', { params: { page, pageSize: 20 } })
-  return moviesListResponseSchema.parse(data)
-}
+import { useQuery } from '@tanstack/react-query';
+import { getMovieById } from '@/src/features/movies/api/movies.api';
+import { moviesQueryKeys } from './movies.keys';
 
-export function useMoviesInfiniteQuery() {
-  return useInfiniteQuery({
-    queryKey: moviesKeys.lists(),
-    queryFn: ({ pageParam = 1 }) => fetchMoviesPage(pageParam as number),
-    getNextPageParam: (lastPage) => {
-      const hasMore = lastPage.page * lastPage.pageSize < lastPage.total
-      return hasMore ? lastPage.page + 1 : undefined
-    },
-    initialPageParam: 1,
-  })
-}
-```
-
----
-
-## Detail query hook
-
-```ts
-// src/domains/movies/services/queries/useMovieDetailQuery.ts
-import { useQuery } from '@tanstack/react-query'
-import axios from '@/lib/axios'
-import { movieDetailResponseSchema, type MovieDetailResponse } from '../../schemas'
-import { moviesKeys } from '../../consts/keys'
-
-async function fetchMovieDetail(id: string): Promise<MovieDetailResponse> {
-  const { data } = await axios.get(`/movies/${id}`)
-  return movieDetailResponseSchema.parse(data)
-}
-
-export function useMovieDetailQuery(id: string) {
+export function useGetMovie(id: string) {
   return useQuery({
-    queryKey: moviesKeys.detail(id),
-    queryFn: () => fetchMovieDetail(id),
+    queryKey: moviesQueryKeys.detail(id),
+    queryFn: () => getMovieById(id),
     enabled: Boolean(id),
-  })
+  });
 }
 ```
 
 ---
 
-## Mutation hook
-
-La función de mutación también vive fuera del hook. Response siempre validada con Zod.
+## Hook — `useMutation`
 
 ```ts
-// src/domains/movies/services/mutations/useCreateMovieMutation.ts
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import axios from '@/lib/axios'
-import {
-  createMovieInputSchema,
-  movieDetailResponseSchema,
-  type CreateMovieInput,
-  type MovieDetailResponse,
-} from '../../schemas'
-import { moviesKeys } from '../../consts/keys'
+// src/domain/movies/use-create-movie.ts
+'use client';
 
-async function createMovie(input: CreateMovieInput): Promise<MovieDetailResponse> {
-  const validated = createMovieInputSchema.parse(input)
-  const { data } = await axios.post('/movies', validated)
-  return movieDetailResponseSchema.parse(data)
-}
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createMovie } from '@/src/features/movies/api/movies.api';
+import { moviesQueryKeys, moviesMutationKeys } from './movies.keys';
 
-export function useCreateMovieMutation() {
-  const queryClient = useQueryClient()
+export function useCreateMovie() {
+  const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: moviesMutationKeys.create(),
     mutationFn: createMovie,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: moviesKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: moviesQueryKeys.all });
     },
-  })
+  });
 }
 ```
 
 ---
 
-## Ejemplo completo leído desde OpenAPI
+## Uso del hook en viewmodel
 
-**Spec fragmento:**
-```yaml
-/movies:
-  get:
-    summary: List movies
-    parameters:
-      - name: page
-        in: query
-        schema: { type: integer }
-      - name: pageSize
-        in: query
-        schema: { type: integer }
-    responses:
-      200:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                data:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Movie'
-                total: { type: integer }
-                page: { type: integer }
-                pageSize: { type: integer }
-  post:
-    summary: Create movie
-    requestBody:
-      content:
-        application/json:
-          schema: { $ref: '#/components/schemas/CreateMovieInput' }
-    responses:
-      201:
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/Movie' }
+```ts
+// src/features/movies/components/MovieList/MovieList.viewmodel.ts
+'use client';
+
+import { useGetMovies } from '@/src/domain/movies/use-get-movies';
+import { useAuth } from '@/src/features/auth/hooks/use-auth';
+
+export function useMovieList() {
+  const { user } = useAuth();
+  const { data, isLoading, error } = useGetMovies();
+
+  return {
+    movies: data?.data ?? [],
+    total: data?.total ?? 0,
+    isLoading,
+    error,
+    isAdmin: user?.role.name === 'admin',
+  };
+}
 ```
-
-**Decisiones tomadas:**
-- `GET /movies` tiene `page` → `useInfiniteQuery` ✓
-- `POST /movies` → mutation ✓
-- `schemas/index.ts` con Zod para response y request body ✓
-- `fetchMovies`, `fetchMovieDetail`, `createMovie` como funciones nombradas fuera del hook ✓
-- Response validada con `.parse()` en cada fetch/mutation fn ✓
 
 ---
 
-## Checklist de ejecución (en orden)
+## Auth-aware components
 
-- [ ] Leer spec OpenAPI completo del endpoint — si no existe, DETENER y pedirlo
-- [ ] Identificar: entidad, método HTTP, path, params, request body, response body
-- [ ] Crear `schemas/index.ts` — schemas Zod para response y request body + tipos inferidos (nunca `types/`)
-- [ ] Crear `consts/keys.ts` con factory `<domain>Keys`
-- [ ] Para cada GET sin paginación → función `fetch<Domain>` + `useQuery` hook en `services/queries/`
-- [ ] Para cada GET con paginación (page/cursor/offset) → función `fetch<Domain>Page` + `useInfiniteQuery` hook
-- [ ] Para cada POST/PUT/PATCH/DELETE → función nombrada (`create<Domain>`, `update<Domain>`) + `useMutation` hook en `services/mutations/`
-- [ ] Cada función de fetch/mutation valida response con `<schema>.parse(data)`
-- [ ] Funciones de fetch/mutation exportadas fuera del hook — `queryFn`/`mutationFn` referencia la función, no define arrow inline
-- [ ] Nombrar hooks: `use<Domain><Operación>Query` / `use<Domain><Operación>Mutation`
-- [ ] Verificar que axios se importe de `src/lib/axios.ts`, no como nueva instancia
-- [ ] `onSuccess` en mutations invalida queries afectadas via `queryClient.invalidateQueries`
+Para componentes que necesitan el usuario actual:
+
+```ts
+import { useAuth } from '@/src/features/auth/hooks/use-auth';
+
+const { user, isLoading, logout } = useAuth();
+// user: AuthUser | null
+// isLoading: boolean (while getUser query runs)
+// logout: () => Promise<void>
+```
+
+`useAuth()` sólo funciona dentro de `AuthProvider` (dashboard layout). No usar en páginas de auth.
+
+---
+
+## Manejo de errores
+
+El interceptor de axios (`src/config/axios/index.ts`) convierte automáticamente non-2xx en `ApiError`. Las funciones en `*.api.ts` no necesitan try/catch.
+
+En componentes, detectar errores de auth:
+
+```ts
+import { isApiError } from '@/src/lib/errors';
+
+useEffect(() => {
+  if (isApiError(error) && error.status === 401) {
+    router.push('/login');
+  }
+}, [error, router]);
+```
+
+---
+
+## Checklist de ejecución
+
+- [ ] Crear `src/features/<feature>/types/<feature>.types.ts` con interfaces TS
+- [ ] Crear `src/features/<feature>/api/<feature>.api.ts` — funciones nombradas con `apiClient`
+- [ ] Crear `src/domain/<feature>/<feature>.keys.ts` — `<domain>QueryKeys` y `<domain>MutationKeys`
+- [ ] Para cada GET → `src/domain/<feature>/use-get-<entity>.ts` con `useQuery`
+- [ ] Para cada GET con id requerido → `enabled: Boolean(id)`
+- [ ] Para cada POST/PATCH/DELETE → `src/domain/<feature>/use-<verb>-<entity>.ts` con `useMutation`
+- [ ] Mutations con `onSuccess` invalidan queries relacionadas via `queryClient.invalidateQueries`
+- [ ] Verificar: axios importado de `@/src/config/axios`, no `fetch` directo
+- [ ] Verificar: no hay try/catch en funciones de API (interceptor lo maneja)

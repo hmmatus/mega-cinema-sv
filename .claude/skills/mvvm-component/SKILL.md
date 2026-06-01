@@ -134,7 +134,7 @@ export function truncateTitle(title: string, max: number): string {
 
 Reglas:
 - Todo `useState`, `useEffect`, `useCallback`, `useMemo` va aquí
-- Todas las llamadas a API (fetch, SWR, server actions) van aquí
+- Todas las llamadas a API van vía **hooks de dominio** (`use-get-*.ts`, `use-create-*.ts`) — nunca `fetch` directo ni axios directo en el viewmodel
 - Toda la lógica de formularios y validación va aquí
 - **Nunca importa JSX ni elementos del DOM**
 - Recibe los props crudos del componente padre
@@ -142,35 +142,66 @@ Reglas:
 
 ```ts
 'use client'
-import { useState, useEffect, useCallback } from 'react'
-import type { MovieCardProps, Movie, LoadingState } from './types'
+import { useCallback } from 'react'
+import { useGetMovie } from '@/src/domain/movies/use-get-movie'
+import { useAuth } from '@/src/features/auth/hooks/use-auth'
+import type { MovieCardProps } from './types'
 import { ERROR_MESSAGES, CARD_CONFIG } from './consts'
 import { formatRating, truncateTitle } from './utils'
 
 export function useMovieCard({ movieId, onSelect }: MovieCardProps) {
-  const [movie, setMovie] = useState<Movie | null>(null)
-  const [status, setStatus] = useState<LoadingState>('idle')
-
-  useEffect(() => {
-    setStatus('loading')
-    fetch(`/api/movies/${movieId}`)
-      .then((r) => r.json())
-      .then((data) => { setMovie(data); setStatus('success') })
-      .catch(() => setStatus('error'))
-  }, [movieId])
+  const { data: movie, isLoading, isError } = useGetMovie(movieId)
+  const { user } = useAuth()
 
   const handleSelect = useCallback(() => {
     if (movie) onSelect(movie.id)
   }, [movie, onSelect])
 
   return {
-    movie,
-    isLoading: status === 'loading',
-    isError: status === 'error',
+    movie: movie ?? null,
+    isLoading,
+    isError,
     errorMessage: ERROR_MESSAGES.fetchFailed,
     displayRating: movie ? formatRating(movie.rating) : formatRating(CARD_CONFIG.defaultRating),
     displayTitle: movie ? truncateTitle(movie.title, CARD_CONFIG.maxTitleLength) : '',
+    canEdit: user?.role.name === 'admin',
     handleSelect,
+  }
+}
+```
+
+**Nota:** `isLoading` e `isError` vienen del hook de dominio (React Query). No manejar estado de carga manualmente con `useState`.
+
+**Para mutations en viewmodel:**
+
+```ts
+'use client'
+import { useCallback } from 'react'
+import { useCreateMovie } from '@/src/domain/movies/use-create-movie'
+import { isApiError } from '@/src/lib/errors'
+import type { MovieFormProps } from './types'
+import { ERROR_MESSAGES } from './consts'
+
+export function useMovieForm({ onSuccess }: MovieFormProps) {
+  const createMutation = useCreateMovie()
+
+  const handleSubmit = useCallback(
+    async (data: CreateMovieInput) => {
+      try {
+        await createMutation.mutateAsync(data)
+        onSuccess?.()
+      } catch (err) {
+        // isApiError(err) → err.status, err.message, err.details
+        // Para errores genéricos usa el message del ApiError
+      }
+    },
+    [createMutation, onSuccess],
+  )
+
+  return {
+    handleSubmit,
+    isLoading: createMutation.isPending,
+    error: createMutation.error?.message ?? '',
   }
 }
 ```
@@ -282,7 +313,8 @@ Si la complejidad viene de una sección de UI específica, extraer esa sección 
 - [ ] Crear `consts.ts` si hay 2+ valores estáticos o mensajes de error
 - [ ] Crear `styles.ts` si hay 3+ elementos con clases Tailwind
 - [ ] Crear `utils.ts` si hay 2+ funciones puras helper
-- [ ] Escribir `ComponentName.viewmodel.ts` — hook `use<ComponentName>` con toda la lógica
+- [ ] Escribir `ComponentName.viewmodel.ts` — hook `use<ComponentName>` con toda la lógica; usar hooks de dominio (`use-get-*.ts`, `use-create-*.ts`) para datos, nunca `fetch`/axios directo
+- [ ] Si el componente necesita usuario autenticado → `const { user } = useAuth()` en el viewmodel
 - [ ] Si viewmodel > 100 líneas → extraer hooks en `hooks/` o crear sub-componente
 - [ ] Escribir `ComponentName.tsx` — render puro que llama al viewmodel, usa `styles`
 - [ ] Identificar sub-secciones complejas → crear sub-componentes con su propio MVVM
