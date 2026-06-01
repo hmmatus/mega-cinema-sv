@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { JwtAuthGuard } from './auth.guard';
 import { RolesGuard } from './roles.guard';
 import { AuthController } from './auth.controller';
@@ -12,7 +12,7 @@ import { RecoverPasswordUseCase } from './application/recover-password.use-case'
 import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [UsersModule],
+  imports: [forwardRef(() => UsersModule)],
   controllers: [AuthController],
   providers: [
     JwtAuthGuard,
