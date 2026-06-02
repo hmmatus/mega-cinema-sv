@@ -20,13 +20,30 @@ enum UserStatus {
 }
 
 enum MovieStatus {
-  CARTELERA
-  PREVENTA
-  ESTRENO
-  PROXIMA
-  INACTIVA
+  UPCOMING
+  PRERELEASE
+  RELEASED
+  ARCHIVED
 
   @@map("movie_status")
+}
+
+enum MovieRating {
+  G
+  PG
+  PG13
+  R
+  NC17
+
+  @@map("movie_rating")
+}
+
+enum MovieVisibility {
+  PUBLIC
+  INTERNAL
+  HIDDEN
+
+  @@map("movie_visibility")
 }
 
 enum ShowtimeStatus {
@@ -95,8 +112,10 @@ enum RoomStatus {
 }
 
 enum BranchStatus {
-  ACTIVA
-  INACTIVA
+  ACTIVE
+  INACTIVE
+  CLOSED
+  MAINTENANCE
 
   @@map("branch_status")
 }
@@ -132,6 +151,24 @@ enum TicketTypeStatus {
   @@map("ticket_type_status")
 }
 
+enum BannerStatus {
+  ACTIVE
+  INACTIVE
+  DRAFT
+  SCHEDULED
+
+  @@map("banner_status")
+}
+
+enum BannerTargetType {
+  EXTERNAL
+  MOVIE
+  BRANCH
+  PROMOTION
+
+  @@map("banner_target_type")
+}
+
 // ─── Models ──────────────────────────────────────────────────────────────────
 
 model Role {
@@ -162,23 +199,45 @@ model User {
   reservations     Reservation[]
   auditLogs        AuditLog[]
   scannedTicketQRs TicketQR[]        @relation("ScannedBy")
+  moviesCreated    Movie[]           @relation("MovieCreatedBy")
+  moviesUpdated    Movie[]           @relation("MovieUpdatedBy")
+  branchesCreated  Branch[]          @relation("BranchCreatedBy")
+  branchesUpdated  Branch[]          @relation("BranchUpdatedBy")
+  bannersCreated   Banner[]          @relation("BannerCreatedBy")
+  bannersUpdated   Banner[]          @relation("BannerUpdatedBy")
 
   @@index([roleId])
   @@map("users")
 }
 
 model Branch {
-  id        String       @id @default(uuid()) @db.Uuid
-  name      String
-  address   String
-  city      String
-  phone     String?
-  status    BranchStatus @default(ACTIVA)
-  createdAt DateTime     @default(now()) @map("created_at")
-  updatedAt DateTime     @updatedAt @map("updated_at")
+  id             String       @id @default(uuid()) @db.Uuid
+  name           String
+  address        String
+  city           String
+  phone          String?
+  status         BranchStatus @default(ACTIVE)
+  description    String?
+  state          String?
+  postalCode     String?      @map("postal_code")
+  country        String       @default("El Salvador")
+  email          String?
+  latitude       Float?
+  longitude      Float?
+  operatingHours Json?        @map("operating_hours")
+  imageUrl       String?      @map("image_url")
+  features       String[]     @default([])
+  metadata       Json?
+  createdById    String?      @map("created_by") @db.Uuid
+  updatedById    String?      @map("updated_by") @db.Uuid
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
 
-  rooms Room[]
+  rooms     Room[]
+  createdBy User?  @relation("BranchCreatedBy", fields: [createdById], references: [id])
+  updatedBy User?  @relation("BranchUpdatedBy", fields: [updatedById], references: [id])
 
+  @@index([status])
   @@map("branches")
 }
 
@@ -218,21 +277,33 @@ model Seat {
 }
 
 model Movie {
-  id               String      @id @default(uuid()) @db.Uuid
+  id               String          @id @default(uuid()) @db.Uuid
   title            String
   description      String?
-  durationMinutes  Int         @map("duration_minutes")
-  rating           String?
-  originalLanguage String?     @map("original_language")
-  status           MovieStatus @default(CARTELERA)
-  releaseDate      DateTime?   @map("release_date") @db.Date
-  posterUrl        String?     @map("poster_url")
-  trailerUrl       String?     @map("trailer_url")
-  createdAt        DateTime    @default(now()) @map("created_at")
-  updatedAt        DateTime    @updatedAt @map("updated_at")
+  durationMinutes  Int             @map("duration_minutes")
+  rating           MovieRating?
+  originalLanguage String?         @map("original_language")
+  status           MovieStatus     @default(UPCOMING)
+  releaseDate      DateTime?       @map("release_date") @db.Date
+  posterUrl        String?         @map("poster_url")
+  trailerUrl       String?         @map("trailer_url")
+  director         String?
+  genres           String[]        @default([])
+  cast             String[]        @default([])
+  featured         Boolean         @default(false)
+  visibility       MovieVisibility @default(PUBLIC)
+  metadata         Json?
+  createdById      String?         @map("created_by") @db.Uuid
+  updatedById      String?         @map("updated_by") @db.Uuid
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
 
   showtimes Showtime[]
+  createdBy User?      @relation("MovieCreatedBy", fields: [createdById], references: [id])
+  updatedBy User?      @relation("MovieUpdatedBy", fields: [updatedById], references: [id])
 
+  @@index([status, visibility])
+  @@index([featured])
   @@map("movies")
 }
 
@@ -272,16 +343,17 @@ model TicketType {
 }
 
 model Reservation {
-  id           String            @id @default(uuid()) @db.Uuid
-  userId       String            @map("user_id") @db.Uuid
-  showtimeId   String            @map("showtime_id") @db.Uuid
-  status       ReservationStatus @default(PENDIENTE)
-  totalTickets Int               @map("total_tickets")
-  totalAmount  Decimal           @map("total_amount") @db.Decimal(10, 2)
-  currency     String            @default("USD")
-  expiresAt    DateTime          @map("expires_at")
-  createdAt    DateTime          @default(now()) @map("created_at")
-  updatedAt    DateTime          @updatedAt @map("updated_at")
+  id                String            @id @default(uuid()) @db.Uuid
+  userId            String            @map("user_id") @db.Uuid
+  showtimeId        String            @map("showtime_id") @db.Uuid
+  status            ReservationStatus @default(PENDIENTE)
+  totalTickets      Int               @map("total_tickets")
+  totalAmount       Decimal           @map("total_amount") @db.Decimal(10, 2)
+  currency          String            @default("USD")
+  expiresAt         DateTime          @map("expires_at")
+  pendingResolution Boolean           @default(false) @map("pending_resolution")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
 
   user                   User                    @relation(fields: [userId], references: [id])
   showtime               Showtime                @relation(fields: [showtimeId], references: [id])
@@ -378,4 +450,30 @@ model AuditLog {
   @@index([userId])
   @@index([roleId])
   @@map("audit_logs")
+}
+
+model Banner {
+  id             String           @id @default(uuid()) @db.Uuid
+  title          String           @db.VarChar(255)
+  description    String?
+  imageUrl       String           @map("image_url")
+  mobileImageUrl String?          @map("mobile_image_url")
+  targetUrl      String?          @map("target_url")
+  targetType     BannerTargetType @default(EXTERNAL) @map("target_type")
+  targetId       String?          @map("target_id") @db.Uuid
+  position       Int              @default(0)
+  status         BannerStatus     @default(DRAFT)
+  publishedAt    DateTime?        @map("published_at")
+  expiresAt      DateTime?        @map("expires_at")
+  metadata       Json?
+  createdById    String?          @map("created_by") @db.Uuid
+  updatedById    String?          @map("updated_by") @db.Uuid
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+
+  createdBy User? @relation("BannerCreatedBy", fields: [createdById], references: [id])
+  updatedBy User? @relation("BannerUpdatedBy", fields: [updatedById], references: [id])
+
+  @@index([status, position])
+  @@map("banners")
 }
