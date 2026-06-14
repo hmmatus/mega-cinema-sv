@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './features/auth/auth.module';
 import { UsersModule } from './features/users/users.module';
+import { MoviesModule } from './features/movies/movies.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UsersModule } from './features/users/users.module';
     PrismaModule,
     AuthModule,
     UsersModule,
+    MoviesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
