@@ -16,6 +16,10 @@ import type {
 export class PrismaMovieRepository implements MovieRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  findAll(): Promise<Movie[]> {
+    return this.prisma.movie.findMany();
+  }
+
   async findMany(filters: MovieFilters, pagination: MoviePagination): Promise<PaginatedMovies> {
     const { page, pageSize, sortBy, sortOrder } = pagination;
     const skip = page * pageSize;
@@ -116,6 +120,12 @@ export class PrismaMovieRepository implements MovieRepository {
         updatedById: data.updatedById ?? undefined,
       },
     });
+  }
+
+  async upsertByTitle(data: CreateMovieData): Promise<Movie> {
+    const existing = await this.prisma.movie.findFirst({ where: { title: data.title } });
+    if (existing) return existing;
+    return this.create(data);
   }
 
   async findFutureShowtimeIds(movieId: string): Promise<string[]> {

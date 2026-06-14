@@ -9,7 +9,8 @@
     "lint": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:cov": "vitest run --coverage"
+    "test:cov": "vitest run --coverage",
+    "seed:movies": "ts-node -r tsconfig-paths/register scripts/seed-movies.ts"
   },
   "dependencies": {
     "@cinema/database": "workspace:*",
@@ -35,6 +36,7 @@
     "@types/node": "^22.0.0",
     "@types/supertest": "^6.0.0",
     "@vitest/coverage-v8": "^4.1.8",
+    "dotenv": "^16.4.5",
     "supertest": "^7.0.0",
     "ts-loader": "^9.5.0",
     "ts-node": "^10.9.0",
