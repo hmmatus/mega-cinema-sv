@@ -1,23 +1,28 @@
 import { Module } from '@nestjs/common';
-import { SupabaseStorageService } from '../../common/storage/supabase-storage.service';
-import { MOVIE_REPOSITORY } from './domain/ports/movie.repository';
 import { PrismaMovieRepository } from './infrastructure/adapters/prisma-movie.repository';
-import { GetMoviesUseCase } from './application/get-movies.use-case';
-import { ImportTmdbMovieUseCase } from './application/import-tmdb-movie.use-case';
+import { MovieArchivedListener } from './infrastructure/listeners/movie-archived.listener';
+import { MOVIE_REPOSITORY } from './domain/ports/movie.repository';
+import { ListMoviesUseCase } from './application/list-movies.use-case';
+import { GetMovieUseCase } from './application/get-movie.use-case';
+import { CreateMovieUseCase } from './application/create-movie.use-case';
+import { UpdateMovieUseCase } from './application/update-movie.use-case';
+import { ArchiveMovieUseCase } from './application/archive-movie.use-case';
 import { MoviesController } from './movies.controller';
-import { JwtAuthGuard } from '../auth/auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
+import { AuditModule } from '../audit/audit.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
+  imports: [AuditModule, AuthModule],
   controllers: [MoviesController],
   providers: [
-    SupabaseStorageService,
-    JwtAuthGuard,
-    RolesGuard,
     { provide: MOVIE_REPOSITORY, useClass: PrismaMovieRepository },
-    GetMoviesUseCase,
-    ImportTmdbMovieUseCase,
+    ListMoviesUseCase,
+    GetMovieUseCase,
+    CreateMovieUseCase,
+    UpdateMovieUseCase,
+    ArchiveMovieUseCase,
+    MovieArchivedListener,
   ],
-  exports: [MOVIE_REPOSITORY],
+  exports: [ListMoviesUseCase, GetMovieUseCase],
 })
 export class MoviesModule {}

@@ -8,7 +8,7 @@ export type { Role, User } from './generated/client/index.js';
 export type { Branch, Room, Seat } from './generated/client/index.js';
 
 // Content
-export type { Movie, Showtime, TicketType } from './generated/client/index.js';
+export type { Movie, Showtime, TicketType, Banner } from './generated/client/index.js';
 
 // Reservations & payments
 export type {
@@ -26,6 +26,8 @@ export type { AuditLog } from './generated/client/index.js';
 export {
   UserStatus,
   MovieStatus,
+  MovieRating,
+  MovieVisibility,
   ShowtimeStatus,
   SeatStatus,
   SeatType,
@@ -38,4 +40,6 @@ export {
   QRStatus,
   AdjustmentType,
   TicketTypeStatus,
+  BannerStatus,
+  BannerTargetType,
 } from './generated/client/index.js';
