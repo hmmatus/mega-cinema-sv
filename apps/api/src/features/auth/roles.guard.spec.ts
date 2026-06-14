@@ -23,27 +23,27 @@ describe('RolesGuard', () => {
   });
 
   it('allows access when no @Roles() metadata is set', () => {
-    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(undefined);
+    vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue(undefined);
     expect(guard.canActivate(makeContext('user'))).toBe(true);
   });
 
   it('allows access when user role matches required roles', () => {
-    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['admin']);
+    vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['admin']);
     expect(guard.canActivate(makeContext('admin'))).toBe(true);
   });
 
   it('allows access when user role is one of multiple allowed roles', () => {
-    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['admin', 'employee']);
+    vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['admin', 'employee']);
     expect(guard.canActivate(makeContext('employee'))).toBe(true);
   });
 
   it('throws ForbiddenException when user role is not in allowed roles', () => {
-    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['admin']);
+    vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['admin']);
     expect(() => guard.canActivate(makeContext('user'))).toThrow(ForbiddenException);
   });
 
   it('uses ROLES_KEY when reading metadata', () => {
-    const spy = jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['admin']);
+    const spy = vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['admin']);
     const ctx = makeContext('admin');
     guard.canActivate(ctx);
     expect(spy).toHaveBeenCalledWith(ROLES_KEY, [ctx.getHandler(), ctx.getClass()]);

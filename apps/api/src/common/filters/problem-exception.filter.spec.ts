@@ -3,9 +3,9 @@ import { ProblemExceptionFilter } from './problem-exception.filter';
 import { HttpProblemException } from '../exceptions/http-problem.exception';
 
 function makeHost(url = '/api/test') {
-  const json = jest.fn();
-  const set = jest.fn().mockReturnThis();
-  const status = jest.fn().mockReturnValue({ set, json });
+  const json = vi.fn();
+  const set = vi.fn().mockReturnThis();
+  const status = vi.fn().mockReturnValue({ set, json });
   const response = { status };
   const request = { url };
   return {

@@ -4,19 +4,19 @@ import { Test } from '@nestjs/testing';
 import { SupabaseAuthAdapter } from './supabase-auth.adapter';
 
 const mockAdminAuth = {
-  createUser: jest.fn(),
+  createUser: vi.fn(),
   admin: {
-    createUser: jest.fn(),
-    updateUserById: jest.fn(),
-    deleteUser: jest.fn(),
+    createUser: vi.fn(),
+    updateUserById: vi.fn(),
+    deleteUser: vi.fn(),
   },
-  signInWithPassword: jest.fn(),
-  signInWithOAuth: jest.fn(),
-  resetPasswordForEmail: jest.fn(),
+  signInWithPassword: vi.fn(),
+  signInWithOAuth: vi.fn(),
+  resetPasswordForEmail: vi.fn(),
 };
 
-jest.mock('@supabase/supabase-js', () => ({
-  createClient: jest.fn(() => ({ auth: mockAdminAuth })),
+vi.mock('@supabase/supabase-js', () => ({
+  createClient: vi.fn(() => ({ auth: mockAdminAuth })),
 }));
 
 describe('SupabaseAuthAdapter', () => {
@@ -44,7 +44,7 @@ describe('SupabaseAuthAdapter', () => {
     }).compile();
 
     adapter = module.get(SupabaseAuthAdapter);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('createUser', () => {
@@ -166,14 +166,14 @@ describe('SupabaseAuthAdapter', () => {
 
   describe('deleteUser', () => {
     it('deletes user via admin SDK', async () => {
-      mockAdminAuth.admin.deleteUser = jest.fn().mockResolvedValue({ error: null });
+      mockAdminAuth.admin.deleteUser = vi.fn().mockResolvedValue({ error: null });
 
       await expect(adapter.deleteUser('uid-1')).resolves.toBeUndefined();
       expect(mockAdminAuth.admin.deleteUser).toHaveBeenCalledWith('uid-1');
     });
 
     it('throws InternalServerErrorException on error', async () => {
-      mockAdminAuth.admin.deleteUser = jest.fn().mockResolvedValue({ error: { message: 'fail' } });
+      mockAdminAuth.admin.deleteUser = vi.fn().mockResolvedValue({ error: { message: 'fail' } });
 
       await expect(adapter.deleteUser('uid-1')).rejects.toThrow(InternalServerErrorException);
     });

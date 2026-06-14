@@ -2,11 +2,11 @@ import { LoginUseCase } from './login.use-case';
 import { HttpProblemException } from '../../../common/exceptions/http-problem.exception';
 
 const mockSupabaseAuth = {
-  signInWithPassword: jest.fn(),
+  signInWithPassword: vi.fn(),
 };
 
 const mockUserRepo = {
-  findById: jest.fn(),
+  findById: vi.fn(),
 };
 
 describe('LoginUseCase', () => {
@@ -14,7 +14,7 @@ describe('LoginUseCase', () => {
 
   beforeEach(() => {
     useCase = new LoginUseCase(mockSupabaseAuth as any, mockUserRepo as any);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('returns accessToken and userId for active user', async () => {

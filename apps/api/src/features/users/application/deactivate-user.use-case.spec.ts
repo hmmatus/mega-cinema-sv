@@ -2,8 +2,8 @@ import { DeactivateUserUseCase } from './deactivate-user.use-case';
 import { HttpProblemException } from '../../../common/exceptions/http-problem.exception';
 
 const mockUserRepo = {
-  findById: jest.fn(),
-  deactivate: jest.fn(),
+  findById: vi.fn(),
+  deactivate: vi.fn(),
 };
 
 describe('DeactivateUserUseCase', () => {
@@ -11,7 +11,7 @@ describe('DeactivateUserUseCase', () => {
 
   beforeEach(() => {
     useCase = new DeactivateUserUseCase(mockUserRepo as any);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('deactivates existing user', async () => {
