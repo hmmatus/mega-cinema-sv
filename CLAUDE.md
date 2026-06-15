@@ -88,6 +88,35 @@ Schema lives in `packages/database/prisma/schema.prisma`. The Prisma client is g
 - `@cinema/shared` — pure TypeScript types/utils, no React dependency
 - `@cinema/database` — Prisma client + all DB types
 
+### `apps/web` Structure
+
+```
+apps/web/
+  app/                              Next.js App Router pages only (no logic)
+  domain/<entity>/                  Entity types + API fetch functions
+    <entity>.types.ts
+    <entity>.api.ts
+  features/<feature>/components/    Feature-scoped components
+    <Component>/
+      types.ts
+      <Component>.tsx
+      <Component>.viewmodel.ts      (when state/logic extracted)
+      utils.ts                      (optional)
+      constants.ts                  (optional)
+      index.ts
+  shared/ui/                        Layout-level shared components (Navbar, Footer, etc.)
+    <Component>/
+      types.ts
+      <Component>.tsx
+      index.ts
+```
+
+Rules:
+- Pages (`app/`) import from `features/` and `shared/ui/` only — no inline logic
+- `domain/` is consumed by `features/` — never by `app/` directly
+- Feature-scoped components live under `features/<feature>/components/`, not in `shared/`
+- Only layout-level or truly cross-feature components go in `shared/ui/`
+
 ### API
 Global prefix `/api`. CORS is locked to `WEB_FRONTEND_URL` and `ADMIN_FRONTEND_URL`. New feature modules follow NestJS module pattern: `feature.module.ts` → `feature.controller.ts` → `feature.service.ts`.
 
@@ -136,3 +165,4 @@ All new features follow the SDD workflow via spec-kit. Specs live in `specs/NNN-
 - User scenarios use `Given/When/Then` with P1/P2/P3 priority
 - Plan must pass constitution check (`specs/constitution.md`) before implementation
 - Schema changes always in Fase 0 of tasks — always run `pnpm db:generate` after
+- `speckit.implement` must always create a worktree — pass `create worktree, when finish create pr` as argument
