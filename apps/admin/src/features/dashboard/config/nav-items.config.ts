@@ -17,7 +17,7 @@ export interface NavItem {
 
 export const ADMIN_NAV: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
-  { label: 'Películas', href: '#', icon: 'movies' },
+  { label: 'Películas', href: '/dashboard/movies', icon: 'movies' },
   { label: 'Banners', href: '#', icon: 'banners' },
   { label: 'Sucursales', href: '#', icon: 'branches' },
   { label: 'Salas y horarios', href: '#', icon: 'schedule' },
