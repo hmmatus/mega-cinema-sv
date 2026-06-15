@@ -1,14 +1,4 @@
-import type { MovieStatus, MovieVisibility } from '@cinema/database';
-
-export interface Movie {
-  id: string;
-  title: string;
-  status: MovieStatus;
-  visibility: MovieVisibility;
-  posterUrl?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { Movie } from '@/src/domain/movies';
 
 export interface MoviesListProps {
   movies: Movie[];

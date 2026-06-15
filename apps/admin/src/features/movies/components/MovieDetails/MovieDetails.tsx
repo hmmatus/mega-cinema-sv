@@ -61,7 +61,7 @@ export function MovieDetails({
         <h1 className="text-3xl font-bold text-gray-900">{movie.title}</h1>
         <div className="flex gap-2">
           {onBack && (
-            <Button variant="outline" onClick={onBack}>
+            <Button onClick={onBack} className="border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
               Back
             </Button>
           )}
@@ -143,7 +143,7 @@ export function MovieDetails({
         <Card title="Genres">
           <div className="flex flex-wrap gap-2">
             {movie.genres.map((genre) => (
-              <Badge key={genre} variant="outline">
+              <Badge key={genre} variant="default" className="border border-gray-300 bg-white text-gray-700">
                 {genre}
               </Badge>
             ))}

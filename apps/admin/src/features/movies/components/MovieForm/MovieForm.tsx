@@ -455,9 +455,9 @@ export function MovieForm({
         {onCancel && (
           <Button
             type="button"
-            variant="outline"
             onClick={onCancel}
             disabled={isLoading}
+            className="border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
             data-testid="movie-form-cancel"
           >
             Cancel

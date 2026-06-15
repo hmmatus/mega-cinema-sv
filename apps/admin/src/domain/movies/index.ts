@@ -21,6 +21,9 @@ export type {
   MovieVisibility,
 } from './movies.schema';
 
+// Alias for form input
+export type { CreateMovieDTO as MovieFormInput } from './movies.schema';
+
 // Types
 export type {
   GetMoviesRequest,
