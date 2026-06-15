@@ -3,7 +3,7 @@ import { GetBannerUseCase } from './get-banner.use-case';
 import { BANNER_REPOSITORY } from '../domain/ports/banner.repository';
 import { HttpProblemException } from '../../../common/exceptions/http-problem.exception';
 
-const mockRepo = { findById: jest.fn() };
+const mockRepo = { findById: vi.fn() };
 
 describe('GetBannerUseCase', () => {
   let useCase: GetBannerUseCase;
@@ -14,7 +14,7 @@ describe('GetBannerUseCase', () => {
     }).compile();
 
     useCase = module.get<GetBannerUseCase>(GetBannerUseCase);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('returns ACTIVE banner for public user', async () => {

@@ -16,7 +16,11 @@
     "api:start": "pnpm --filter @cinema/api start",
     "api:test": "pnpm --filter @cinema/api test",
     "api:test:cov": "pnpm --filter @cinema/api test:cov",
-    "api:lint": "pnpm --filter @cinema/api lint"
+    "api:lint": "pnpm --filter @cinema/api lint",
+    "web:test": "pnpm --filter @cinema/web test",
+    "web:test:cov": "pnpm --filter @cinema/web test:cov",
+    "admin:test": "pnpm --filter @cinema/admin test",
+    "admin:test:cov": "pnpm --filter @cinema/admin test:cov"
   },
   "devDependencies": {
     "turbo": "^2.5.0",

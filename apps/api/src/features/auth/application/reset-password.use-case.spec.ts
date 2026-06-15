@@ -1,7 +1,7 @@
 import { ResetPasswordUseCase } from './reset-password.use-case';
 
 const mockSupabaseAuth = {
-  sendPasswordResetEmail: jest.fn(),
+  sendPasswordResetEmail: vi.fn(),
 };
 
 describe('ResetPasswordUseCase', () => {
@@ -9,7 +9,7 @@ describe('ResetPasswordUseCase', () => {
 
   beforeEach(() => {
     useCase = new ResetPasswordUseCase(mockSupabaseAuth as any);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('delegates to supabaseAuth.sendPasswordResetEmail', async () => {

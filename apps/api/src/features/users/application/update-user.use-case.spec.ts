@@ -2,8 +2,8 @@ import { UpdateUserUseCase } from './update-user.use-case';
 import { HttpProblemException } from '../../../common/exceptions/http-problem.exception';
 
 const mockUserRepo = {
-  findById: jest.fn(),
-  update: jest.fn(),
+  findById: vi.fn(),
+  update: vi.fn(),
 };
 
 describe('UpdateUserUseCase', () => {
@@ -11,7 +11,7 @@ describe('UpdateUserUseCase', () => {
 
   beforeEach(() => {
     useCase = new UpdateUserUseCase(mockUserRepo as any);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('updates and returns user when found', async () => {
