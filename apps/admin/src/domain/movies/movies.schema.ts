@@ -29,7 +29,7 @@ export const MovieSchema = z.object({
   cast: z.array(z.string()).default([]),
   featured: z.boolean().default(false),
   visibility: MovieVisibilityEnum,
-  metadata: z.record(z.any()).optional().nullable(),
+  metadata: z.record(z.string(), z.any()).optional().nullable(),
   createdById: z.string().uuid().optional().nullable(),
   updatedById: z.string().uuid().optional().nullable(),
   createdAt: z.coerce.date(),
@@ -60,15 +60,15 @@ export const UpdateMovieDTOSchema = CreateMovieDTOSchema.partial();
 // Paginated response schema
 export const PaginatedMoviesResponseSchema = z.object({
   data: z.array(MovieSchema),
-  total: z.number().non-negative(),
+  total: z.number().min(0),
   limit: z.number().positive(),
-  offset: z.number().non-negative(),
+  offset: z.number().min(0),
 });
 
 // Get movies request parameters
 export const GetMoviesParamsSchema = z.object({
   limit: z.number().positive().default(10),
-  offset: z.number().non-negative().default(0),
+  offset: z.number().min(0).default(0),
   search: z.string().optional(),
   status: MovieStatusEnum.optional(),
   visibility: MovieVisibilityEnum.optional(),

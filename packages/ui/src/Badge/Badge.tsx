@@ -20,9 +20,10 @@ export function Badge({
   children,
   variant = 'default',
   size = 'md',
+  className,
 }: BadgeProps) {
   return (
-    <span className={`inline-flex rounded-full font-semibold ${variantClasses[variant]} ${sizeClasses[size]}`}>
+    <span className={`inline-flex rounded-full font-semibold ${variantClasses[variant]} ${sizeClasses[size]} ${className || ''}`}>
       {children}
     </span>
   );

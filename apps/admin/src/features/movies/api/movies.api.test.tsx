@@ -199,6 +199,7 @@ describe('movies.api', () => {
         visibility: 'PUBLIC',
         genres: ['Action'],
         cast: ['Actor 1'],
+        featured: false,
       };
 
       vi.mocked(apiClient.post).mockResolvedValueOnce({
@@ -229,6 +230,7 @@ describe('movies.api', () => {
         trailerUrl: '   ',
         genres: [],
         cast: [],
+        featured: false,
       };
 
       vi.mocked(apiClient.post).mockResolvedValueOnce({
@@ -257,6 +259,7 @@ describe('movies.api', () => {
         visibility: 'PUBLIC',
         genres: [],
         cast: [],
+        featured: false,
       };
 
       const invalidResponse = {
@@ -359,6 +362,7 @@ describe('movies.api', () => {
         trailerUrl: 'https://example.com/trailer.mp4',
         genres: [],
         cast: [],
+        featured: false,
       };
 
       vi.mocked(apiClient.post).mockResolvedValueOnce({
@@ -377,6 +381,7 @@ describe('movies.api', () => {
         posterUrl: 'not-a-url',
         genres: [],
         cast: [],
+        featured: false,
       };
 
       // The API call will be made, but Zod should validate on response

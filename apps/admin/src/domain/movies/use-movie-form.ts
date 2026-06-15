@@ -6,7 +6,7 @@ import {
   updateMovie,
   deleteMovie,
 } from '@/src/features/movies/api/movies.api';
-import { moviesQueryKeys } from './movies.keys';
+import { moviesQueryKeys, moviesMutationKeys } from './movies.keys';
 import { useInvalidateMoviesList } from './use-movies-list';
 import type { CreateMovieDTO, UpdateMovieDTO, Movie } from './movies.schema';
 
@@ -38,7 +38,7 @@ export function useMovieForm(): UseMovieFormResult {
 
   // Create movie mutation
   const createMutation = useMutation({
-    mutationKey: moviesQueryKeys.create(),
+    mutationKey: moviesMutationKeys.create(),
     mutationFn: createMovie,
     onSuccess: async () => {
       // Invalidate list to refetch with new movie
