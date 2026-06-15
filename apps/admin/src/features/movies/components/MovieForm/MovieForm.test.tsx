@@ -3,10 +3,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MovieForm } from './MovieForm';
 import type { MovieFormProps } from './types';
+import type { MovieFormInput } from '@/src/domain/movies';
 
 describe('MovieForm', () => {
-  let mockOnSubmit: jest.Mock;
-  let mockOnCancel: jest.Mock;
+  let mockOnSubmit: (data: MovieFormInput) => void | Promise<void>;
+  let mockOnCancel: (() => void) | undefined;
 
   beforeEach(() => {
     mockOnSubmit = vi.fn().mockResolvedValue(undefined);
@@ -77,9 +78,10 @@ describe('MovieForm', () => {
     });
 
     it('should not render cancel button when onCancel not provided', () => {
+      const mockSubmit = vi.fn().mockResolvedValue(undefined);
       render(
         <MovieForm
-          onSubmit={mockOnSubmit}
+          onSubmit={mockSubmit}
         />
       );
 
@@ -90,11 +92,10 @@ describe('MovieForm', () => {
   describe('Initial Data Population', () => {
     it('should populate form with initial data', async () => {
       const initialData = {
-        id: '123',
         title: 'The Matrix',
         description: 'A sci-fi classic',
         durationMinutes: 136,
-        rating: 'R',
+        rating: 'R' as const,
         originalLanguage: 'en',
         status: 'RELEASED' as const,
         releaseDate: new Date('1999-03-31'),
@@ -238,7 +239,14 @@ describe('MovieForm', () => {
   describe('Form Submission', () => {
     it('should submit form with valid data', async () => {
       const user = userEvent.setup();
-      renderComponent();
+      const mockSubmit = vi.fn().mockResolvedValue(undefined);
+
+      render(
+        <MovieForm
+          onSubmit={mockSubmit}
+          onCancel={mockOnCancel}
+        />
+      );
 
       const titleInput = screen.getByTestId('movie-form-title');
       await user.type(titleInput, 'Test Movie');
@@ -249,12 +257,12 @@ describe('MovieForm', () => {
       await user.click(screen.getByTestId('movie-form-submit'));
 
       await waitFor(() => {
-        expect(mockOnSubmit).toHaveBeenCalled();
+        expect(mockSubmit).toHaveBeenCalled();
       });
 
-      const submittedData = mockOnSubmit.mock.calls[0][0];
-      expect(submittedData.title).toBe('Test Movie');
-      expect(submittedData.durationMinutes).toBe(120);
+      const callArgs = (mockSubmit as any).mock.calls[0][0];
+      expect(callArgs.title).toBe('Test Movie');
+      expect(callArgs.durationMinutes).toBe(120);
     });
 
     it('should disable form while submitting', async () => {

@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MovieFilters } from './MovieFilters';
-import type { MovieStatus, MovieVisibility } from '@cinema/database';
 
 const mockStatusOptions = [
   { value: 'UPCOMING', label: 'Próximamente' },

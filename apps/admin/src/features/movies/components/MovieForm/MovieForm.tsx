@@ -51,10 +51,10 @@ export function MovieForm({
     title: initialData?.title || '',
     description: initialData?.description || '',
     durationMinutes: initialData?.durationMinutes || 0,
-    rating: initialData?.rating || '',
+    rating: (initialData?.rating as 'G' | 'PG' | 'PG13' | 'R' | 'NC17' | undefined) || undefined,
     originalLanguage: initialData?.originalLanguage || '',
     status: initialData?.status || 'UPCOMING',
-    releaseDate: initialData?.releaseDate,
+    releaseDate: initialData?.releaseDate || undefined,
     posterUrl: initialData?.posterUrl || '',
     trailerUrl: initialData?.trailerUrl || '',
     director: initialData?.director || '',
@@ -169,6 +169,7 @@ export function MovieForm({
         <Card.Content className="space-y-4">
           <div>
             <Input
+              id="movie-form-title-input"
               label="Title"
               required
               value={formData.title}
@@ -183,6 +184,7 @@ export function MovieForm({
 
           <div>
             <Input
+              id="movie-form-description-input"
               label="Description"
               type="textarea"
               value={formData.description || ''}
@@ -199,6 +201,7 @@ export function MovieForm({
 
           <div className="grid grid-cols-2 gap-4">
             <Input
+              id="movie-form-duration-input"
               label="Duration (minutes)"
               type="number"
               required
@@ -215,31 +218,43 @@ export function MovieForm({
               data-testid="movie-form-duration"
             />
 
-            <Select
-              label="Rating"
-              options={RATING_OPTIONS}
-              value={formData.rating || ''}
-              onChange={(value) =>
-                setFormData((prev) => ({ ...prev, rating: value }))
-              }
-              disabled={isLoading}
-              data-testid="movie-form-rating"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Rating
+              </label>
+              <Select
+                options={RATING_OPTIONS}
+                value={formData.rating || ''}
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    rating: value as 'G' | 'PG' | 'PG13' | 'R' | 'NC17' | undefined,
+                  }))
+                }
+                disabled={isLoading}
+                data-testid="movie-form-rating"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Select
-              label="Original Language"
-              options={LANGUAGE_OPTIONS}
-              value={formData.originalLanguage || ''}
-              onChange={(value) =>
-                setFormData((prev) => ({ ...prev, originalLanguage: value }))
-              }
-              disabled={isLoading}
-              data-testid="movie-form-language"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Original Language
+              </label>
+              <Select
+                options={LANGUAGE_OPTIONS}
+                value={formData.originalLanguage || ''}
+                onChange={(value) =>
+                  setFormData((prev) => ({ ...prev, originalLanguage: value }))
+                }
+                disabled={isLoading}
+                data-testid="movie-form-language"
+              />
+            </div>
 
             <Input
+              id="movie-form-director-input"
               label="Director"
               value={formData.director || ''}
               onChange={(e) =>
@@ -258,51 +273,72 @@ export function MovieForm({
         </Card.Header>
         <Card.Content className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <Select
-              label="Status"
-              required
-              options={STATUS_OPTIONS}
-              value={formData.status}
-              onChange={(value) =>
-                setFormData((prev) => ({ ...prev, status: value }))
-              }
-              error={validationErrors.status}
-              disabled={isLoading}
-              data-testid="movie-form-status"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Status <span className="text-red-500">*</span>
+              </label>
+              <Select
+                options={STATUS_OPTIONS}
+                value={formData.status}
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    status: value as 'UPCOMING' | 'PRERELEASE' | 'RELEASED' | 'ARCHIVED',
+                  }))
+                }
+                disabled={isLoading}
+                data-testid="movie-form-status"
+              />
+              {validationErrors.status && (
+                <p className="mt-1 text-xs text-red-500">{validationErrors.status}</p>
+              )}
+            </div>
 
-            <Select
-              label="Visibility"
-              required
-              options={VISIBILITY_OPTIONS}
-              value={formData.visibility}
-              onChange={(value) =>
-                setFormData((prev) => ({ ...prev, visibility: value }))
-              }
-              error={validationErrors.visibility}
-              disabled={isLoading}
-              data-testid="movie-form-visibility"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Visibility <span className="text-red-500">*</span>
+              </label>
+              <Select
+                options={VISIBILITY_OPTIONS}
+                value={formData.visibility}
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    visibility: value as 'PUBLIC' | 'INTERNAL' | 'HIDDEN',
+                  }))
+                }
+                disabled={isLoading}
+                data-testid="movie-form-visibility"
+              />
+              {validationErrors.visibility && (
+                <p className="mt-1 text-xs text-red-500">{validationErrors.visibility}</p>
+              )}
+            </div>
           </div>
 
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Release Date
+            </label>
             <DatePicker
-              label="Release Date"
               value={formData.releaseDate}
               onChange={(date) =>
                 setFormData((prev) => ({ ...prev, releaseDate: date }))
               }
-              disabled={isLoading}
               data-testid="movie-form-release-date"
             />
           </div>
 
           <div>
             <Checkbox
+              id="movie-form-featured-checkbox"
               label="Featured"
               checked={formData.featured}
-              onChange={(checked) =>
-                setFormData((prev) => ({ ...prev, featured: checked }))
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  featured: (e.target as HTMLInputElement).checked,
+                }))
               }
               disabled={isLoading}
               data-testid="movie-form-featured"
@@ -318,6 +354,7 @@ export function MovieForm({
         <Card.Content className="space-y-4">
           <div>
             <Input
+              id="movie-form-poster-url-input"
               label="Poster URL"
               type="url"
               value={formData.posterUrl || ''}
@@ -332,6 +369,7 @@ export function MovieForm({
 
           <div>
             <Input
+              id="movie-form-trailer-url-input"
               label="Trailer URL"
               type="url"
               value={formData.trailerUrl || ''}
@@ -356,6 +394,7 @@ export function MovieForm({
         <Card.Content className="space-y-4">
           <div className="flex gap-2">
             <Input
+              id="movie-form-genre-input-field"
               placeholder="Add genre..."
               value={genreInput}
               onChange={(e) => setGenreInput(e.target.value)}
@@ -403,6 +442,7 @@ export function MovieForm({
         <Card.Content className="space-y-4">
           <div className="flex gap-2">
             <Input
+              id="movie-form-cast-input-field"
               placeholder="Add cast member..."
               value={castInput}
               onChange={(e) => setCastInput(e.target.value)}
@@ -449,7 +489,7 @@ export function MovieForm({
           disabled={isLoading}
           data-testid="movie-form-submit"
         >
-          {isLoading ? 'Saving...' : initialData?.id ? 'Update' : 'Create'}
+          {isLoading ? 'Saving...' : (initialData && 'id' in initialData && initialData.id) ? 'Update' : 'Create'}
         </Button>
 
         {onCancel && (

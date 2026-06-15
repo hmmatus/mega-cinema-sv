@@ -49,58 +49,59 @@ export function MoviesList({
     {
       key: 'title',
       label: 'Título',
-      render: (value: string) => (
-        <span className="font-medium text-gray-900">{value}</span>
+      render: (value) => (
+        <span className="font-medium text-gray-900">{String(value || '')}</span>
       ),
     },
     {
       key: 'status',
       label: 'Estado',
-      render: (value: string) => (
-        <Badge variant={getStatusBadgeVariant(value)} size="sm">
-          {value}
+      render: (value) => (
+        <Badge variant={getStatusBadgeVariant(String(value || ''))} size="sm">
+          {String(value || '')}
         </Badge>
       ),
     },
     {
       key: 'visibility',
       label: 'Visibilidad',
-      render: (value: string) => (
-        <Badge variant={getVisibilityBadgeVariant(value)} size="sm">
-          {value}
+      render: (value) => (
+        <Badge variant={getVisibilityBadgeVariant(String(value || ''))} size="sm">
+          {String(value || '')}
         </Badge>
       ),
     },
     {
       key: 'createdAt',
       label: 'Creado',
-      render: (value: string) => (
+      render: (value) => (
         <span className="text-sm text-gray-600">
-          {formatDate(new Date(value))}
+          {formatDate(new Date(String(value || '')))}
         </span>
       ),
     },
     {
       key: 'id',
       label: 'Acciones',
-      render: (movieId: string) => (
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            onClick={() => onEdit(movieId)}
-            className="border border-blue-300 bg-blue-50 text-blue-600 hover:bg-blue-100"
-          >
-            Editar
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => onDelete(movieId)}
-            className="border border-red-300 bg-red-50 text-red-600 hover:bg-red-100"
-          >
-            Eliminar
-          </Button>
-        </div>
-      ),
+      render: (value) => {
+        const movieId = String(value || '');
+        return (
+          <div className="flex gap-2">
+            <Button
+              onClick={() => onEdit(movieId)}
+              className="border border-blue-300 bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 text-sm"
+            >
+              Editar
+            </Button>
+            <Button
+              onClick={() => onDelete(movieId)}
+              className="border border-red-300 bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 text-sm"
+            >
+              Eliminar
+            </Button>
+          </div>
+        );
+      },
     },
   ];
 
