@@ -2,7 +2,7 @@ import { FindUserUseCase } from './find-user.use-case';
 import { HttpProblemException } from '../../../common/exceptions/http-problem.exception';
 
 const mockUserRepo = {
-  findByIdWithRole: jest.fn(),
+  findByIdWithRole: vi.fn(),
 };
 
 const mockUserWithRole = {
@@ -18,7 +18,7 @@ describe('FindUserUseCase', () => {
 
   beforeEach(() => {
     useCase = new FindUserUseCase(mockUserRepo as any);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('returns user with role when found', async () => {

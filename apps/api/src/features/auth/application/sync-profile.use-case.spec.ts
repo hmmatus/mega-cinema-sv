@@ -4,12 +4,12 @@ import { HttpProblemException } from '../../../common/exceptions/http-problem.ex
 const mockUser = { id: 'uid-1', email: 'a@b.com', firstName: 'Ana', lastName: 'Lopez' };
 
 const mockUserRepo = {
-  findById: jest.fn(),
-  update: jest.fn(),
+  findById: vi.fn(),
+  update: vi.fn(),
 };
 
 const mockSupabaseAuth = {
-  updateUserRole: jest.fn(),
+  updateUserRole: vi.fn(),
 };
 
 describe('SyncProfileUseCase', () => {
@@ -17,7 +17,7 @@ describe('SyncProfileUseCase', () => {
 
   beforeEach(() => {
     useCase = new SyncProfileUseCase(mockUserRepo as any, mockSupabaseAuth as any);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('updates profile and sets role=user when currentRole is user', async () => {

@@ -83,6 +83,7 @@ export interface UpdateMovieData {
 }
 
 export interface MovieRepository {
+  findAll(): Promise<Movie[]>;
   findMany(filters: MovieFilters, pagination: MoviePagination): Promise<PaginatedMovies>;
   findById(id: string): Promise<Movie | null>;
   findByIdWithShowtimes(id: string): Promise<MovieWithShowtimes | null>;
@@ -90,5 +91,6 @@ export interface MovieRepository {
   findByStatus(statuses: MovieStatus[], limit: number): Promise<MovieWithShowtimes[]>;
   create(data: CreateMovieData): Promise<Movie>;
   update(id: string, data: UpdateMovieData): Promise<Movie>;
+  upsertByTitle(data: CreateMovieData): Promise<Movie>;
   findFutureShowtimeIds(movieId: string): Promise<string[]>;
 }

@@ -3,9 +3,9 @@ import { ListMoviesUseCase } from './list-movies.use-case';
 import { MOVIE_REPOSITORY } from '../domain/ports/movie.repository';
 
 const mockRepo = {
-  findMany: jest.fn(),
-  findFeatured: jest.fn(),
-  findByStatus: jest.fn(),
+  findMany: vi.fn(),
+  findFeatured: vi.fn(),
+  findByStatus: vi.fn(),
 };
 
 describe('ListMoviesUseCase', () => {
@@ -20,7 +20,7 @@ describe('ListMoviesUseCase', () => {
     }).compile();
 
     useCase = module.get<ListMoviesUseCase>(ListMoviesUseCase);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('forces visibility=PUBLIC for non-admin', async () => {

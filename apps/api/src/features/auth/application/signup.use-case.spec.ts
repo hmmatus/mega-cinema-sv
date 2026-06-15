@@ -2,12 +2,12 @@ import { ConflictException } from '@nestjs/common';
 import { SignupUseCase } from './signup.use-case';
 
 const mockUserRepo = {
-  create: jest.fn(),
+  create: vi.fn(),
 };
 
 const mockSupabaseAuth = {
-  createUser: jest.fn(),
-  deleteUser: jest.fn(),
+  createUser: vi.fn(),
+  deleteUser: vi.fn(),
 };
 
 describe('SignupUseCase', () => {
@@ -15,7 +15,7 @@ describe('SignupUseCase', () => {
 
   beforeEach(() => {
     useCase = new SignupUseCase(mockUserRepo as any, mockSupabaseAuth as any);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('creates auth user and DB record, returns user', async () => {

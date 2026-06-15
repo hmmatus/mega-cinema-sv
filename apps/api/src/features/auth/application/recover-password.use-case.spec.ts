@@ -1,7 +1,7 @@
 import { RecoverPasswordUseCase } from './recover-password.use-case';
 
 const mockSupabaseAuth = {
-  updatePassword: jest.fn(),
+  updatePassword: vi.fn(),
 };
 
 describe('RecoverPasswordUseCase', () => {
@@ -9,7 +9,7 @@ describe('RecoverPasswordUseCase', () => {
 
   beforeEach(() => {
     useCase = new RecoverPasswordUseCase(mockSupabaseAuth as any);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('delegates to supabaseAuth.updatePassword', async () => {

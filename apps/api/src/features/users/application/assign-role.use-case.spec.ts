@@ -1,7 +1,7 @@
 import { AssignRoleUseCase } from './assign-role.use-case';
 
 const mockSupabaseAuth = {
-  updateUserRole: jest.fn(),
+  updateUserRole: vi.fn(),
 };
 
 describe('AssignRoleUseCase', () => {
@@ -9,7 +9,7 @@ describe('AssignRoleUseCase', () => {
 
   beforeEach(() => {
     useCase = new AssignRoleUseCase(mockSupabaseAuth as any);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('calls updateUserRole with correct targetId and role', async () => {

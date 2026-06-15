@@ -4,9 +4,12 @@ import { MovieArchivedListener } from './infrastructure/listeners/movie-archived
 import { MOVIE_REPOSITORY } from './domain/ports/movie.repository';
 import { ListMoviesUseCase } from './application/list-movies.use-case';
 import { GetMovieUseCase } from './application/get-movie.use-case';
+import { GetMoviesUseCase } from './application/get-movies.use-case';
 import { CreateMovieUseCase } from './application/create-movie.use-case';
 import { UpdateMovieUseCase } from './application/update-movie.use-case';
 import { ArchiveMovieUseCase } from './application/archive-movie.use-case';
+import { ImportTmdbMovieUseCase } from './application/import-tmdb-movie.use-case';
+import { SupabaseStorageService } from '../../common/storage/supabase-storage.service';
 import { MoviesController } from './movies.controller';
 import { AuditModule } from '../audit/audit.module';
 import { AuthModule } from '../auth/auth.module';
@@ -16,11 +19,14 @@ import { AuthModule } from '../auth/auth.module';
   controllers: [MoviesController],
   providers: [
     { provide: MOVIE_REPOSITORY, useClass: PrismaMovieRepository },
+    SupabaseStorageService,
     ListMoviesUseCase,
     GetMovieUseCase,
+    GetMoviesUseCase,
     CreateMovieUseCase,
     UpdateMovieUseCase,
     ArchiveMovieUseCase,
+    ImportTmdbMovieUseCase,
     MovieArchivedListener,
   ],
   exports: [ListMoviesUseCase, GetMovieUseCase],

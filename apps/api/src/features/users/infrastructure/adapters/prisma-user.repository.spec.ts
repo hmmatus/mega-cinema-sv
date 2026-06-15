@@ -18,12 +18,12 @@ const mockUser = {
 };
 
 const mockPrisma = {
-  role: { findUnique: jest.fn() },
+  role: { findUnique: vi.fn() },
   user: {
-    findUnique: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    upsert: jest.fn(),
+    findUnique: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    upsert: vi.fn(),
   },
 };
 
@@ -39,7 +39,7 @@ describe('PrismaUserRepository', () => {
     }).compile();
 
     repo = module.get(PrismaUserRepository);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('findById', () => {

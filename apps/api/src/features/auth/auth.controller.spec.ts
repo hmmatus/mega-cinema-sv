@@ -9,12 +9,12 @@ import { JwtAuthGuard } from './auth.guard';
 import { ConfigService } from '@nestjs/config';
 import { SUPABASE_AUTH_PORT } from './domain/ports/supabase-auth.port';
 
-const mockSignup = { execute: jest.fn() };
-const mockLogin = { execute: jest.fn() };
-const mockSync = { execute: jest.fn() };
-const mockReset = { execute: jest.fn() };
-const mockRecover = { execute: jest.fn() };
-const mockSupabaseAuth = { getGoogleOAuthUrl: jest.fn() };
+const mockSignup = { execute: vi.fn() };
+const mockLogin = { execute: vi.fn() };
+const mockSync = { execute: vi.fn() };
+const mockReset = { execute: vi.fn() };
+const mockRecover = { execute: vi.fn() };
+const mockSupabaseAuth = { getGoogleOAuthUrl: vi.fn() };
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -37,7 +37,7 @@ describe('AuthController', () => {
       .compile();
 
     controller = module.get(AuthController);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('POST /auth/signup delegates to SignupUseCase', async () => {

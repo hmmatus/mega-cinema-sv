@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FindNearbyLocationsUseCase } from './find-nearby-locations.use-case';
 import { LOCATION_REPOSITORY } from '../domain/ports/location.repository';
 
-const mockRepo = { findAllWithCoords: jest.fn() };
+const mockRepo = { findAllWithCoords: vi.fn() };
 
 describe('FindNearbyLocationsUseCase', () => {
   let useCase: FindNearbyLocationsUseCase;
@@ -13,7 +13,7 @@ describe('FindNearbyLocationsUseCase', () => {
     }).compile();
 
     useCase = module.get<FindNearbyLocationsUseCase>(FindNearbyLocationsUseCase);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('returns empty array when no branches have coords', async () => {

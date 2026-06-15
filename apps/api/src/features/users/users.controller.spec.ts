@@ -7,10 +7,10 @@ import { AssignRoleUseCase } from './application/assign-role.use-case';
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 
-const mockFind = { execute: jest.fn() };
-const mockUpdate = { execute: jest.fn() };
-const mockDeactivate = { execute: jest.fn() };
-const mockAssignRole = { execute: jest.fn() };
+const mockFind = { execute: vi.fn() };
+const mockUpdate = { execute: vi.fn() };
+const mockDeactivate = { execute: vi.fn() };
+const mockAssignRole = { execute: vi.fn() };
 
 const mockUser = { id: 'uid-1', email: 'a@b.com', firstName: 'Ana', lastName: 'Lopez', role: { name: 'user' } };
 const currentUser = { id: 'uid-1', email: 'a@b.com', role: 'user' };
@@ -35,7 +35,7 @@ describe('UsersController', () => {
       .compile();
 
     controller = module.get(UsersController);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('GET /users delegates to FindUserUseCase with current user id', async () => {

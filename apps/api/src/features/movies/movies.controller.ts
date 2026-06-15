@@ -11,6 +11,8 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import type { Movie } from '@cinema/database';
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -20,9 +22,11 @@ import { GetMovieUseCase } from './application/get-movie.use-case';
 import { CreateMovieUseCase } from './application/create-movie.use-case';
 import { UpdateMovieUseCase } from './application/update-movie.use-case';
 import { ArchiveMovieUseCase } from './application/archive-movie.use-case';
+import { ImportTmdbMovieUseCase } from './application/import-tmdb-movie.use-case';
 import { CreateMovieDto } from './dtos/create-movie.dto';
 import { UpdateMovieDto } from './dtos/update-movie.dto';
 import { ListMoviesQueryDto } from './dtos/list-movies-query.dto';
+import { ImportMovieDto } from './dtos/import-movie.dto';
 
 @Controller('movies')
 export class MoviesController {
@@ -32,6 +36,8 @@ export class MoviesController {
     private readonly createMovie: CreateMovieUseCase,
     private readonly updateMovie: UpdateMovieUseCase,
     private readonly archiveMovie: ArchiveMovieUseCase,
+    private readonly importTmdbMovie: ImportTmdbMovieUseCase,
+    private readonly config: ConfigService,
   ) {}
 
   @Get('featured')
@@ -52,6 +58,14 @@ export class MoviesController {
   @Get('')
   list(@Query() query: ListMoviesQueryDto) {
     return this.listMovies.execute(query, false);
+  }
+
+  @Post('admin/import')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  async importMovie(@Body() dto: ImportMovieDto): Promise<Movie> {
+    const apiKey = this.config.getOrThrow('TMDB_API_KEY');
+    return this.importTmdbMovie.execute(dto.tmdbId, apiKey);
   }
 
   @Post('')

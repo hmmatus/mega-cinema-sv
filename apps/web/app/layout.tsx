@@ -1,12 +1,14 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Navbar } from '../shared/ui/Navbar';
+import { Footer } from '../shared/ui/Footer';
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Cinema Manager',
-    default: 'Cinema Manager',
+    template: '%s | MegaCinemaSV',
+    default: 'MegaCinemaSV',
   },
-  description: 'Cinema management system',
+  description: 'Compra tus entradas de cine en línea',
 };
 
 export default function RootLayout({
@@ -15,9 +17,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-gray-50 text-gray-900 antialiased">
-        {children}
+    <html lang="es">
+      <body className="min-h-screen bg-white text-[#0F172A] antialiased">
+        <Navbar />
+        <main>{children}</main>
+        <Footer />
       </body>
     </html>
   );

@@ -4,8 +4,8 @@ import { MOVIE_REPOSITORY } from '../domain/ports/movie.repository';
 import { HttpProblemException } from '../../../common/exceptions/http-problem.exception';
 
 const mockRepo = {
-  findByIdWithShowtimes: jest.fn(),
-  findById: jest.fn(),
+  findByIdWithShowtimes: vi.fn(),
+  findById: vi.fn(),
 };
 
 describe('GetMovieUseCase', () => {
@@ -20,7 +20,7 @@ describe('GetMovieUseCase', () => {
     }).compile();
 
     useCase = module.get<GetMovieUseCase>(GetMovieUseCase);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('returns movie with showtimes for public user when visibility=PUBLIC', async () => {
