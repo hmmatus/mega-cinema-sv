@@ -9,14 +9,7 @@ export function useMovieDetailsViewModel(movieId: string, enabled = true) {
     movie,
     isLoading,
     error,
-    deleteMovie,
-    deleteMovieAsync,
-    isDeleting,
-    deleteError,
-    archiveMovie,
-    archiveMovieAsync,
-    isArchiving,
-    archiveError,
+    refetch,
   } = useMovieDetailsHook(movieId, enabled);
 
   return {
@@ -24,21 +17,6 @@ export function useMovieDetailsViewModel(movieId: string, enabled = true) {
     movie,
     isLoading,
     error,
-
-    // Delete operations
-    deleteMovie,
-    deleteMovieAsync,
-    isDeleting,
-    deleteError,
-
-    // Archive operations
-    archiveMovie,
-    archiveMovieAsync,
-    isArchiving,
-    archiveError,
-
-    // Combined state
-    isActionPending: isDeleting || isArchiving,
-    actionError: deleteError || archiveError,
+    refetch,
   };
 }

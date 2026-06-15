@@ -56,6 +56,7 @@ describe('useMovieForm', () => {
         visibility: 'PUBLIC',
         genres: [],
         cast: [],
+        featured: false,
       };
 
       vi.mocked(moviesApi.createMovie).mockResolvedValueOnce(mockMovie);
@@ -90,6 +91,7 @@ describe('useMovieForm', () => {
         visibility: 'PUBLIC',
         genres: [],
         cast: [],
+        featured: false,
       };
 
       const error = new Error('Failed to create movie');

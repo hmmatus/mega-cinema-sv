@@ -14,7 +14,7 @@ describe('MovieDetails', () => {
     rating: 'R',
     originalLanguage: 'en',
     status: 'RELEASED',
-    releaseDate: new Date('1999-03-31').toISOString(),
+    releaseDate: new Date('1999-03-31'),
     posterUrl: 'https://example.com/poster.jpg',
     trailerUrl: 'https://example.com/trailer.mp4',
     director: 'The Wachowskis',
@@ -22,8 +22,8 @@ describe('MovieDetails', () => {
     cast: ['Keanu Reeves', 'Laurence Fishburne'],
     featured: true,
     visibility: 'PUBLIC',
-    createdAt: new Date('2024-01-01').toISOString(),
-    updatedAt: new Date('2024-06-01').toISOString(),
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-06-01'),
   };
 
   const defaultProps: MovieDetailsProps = {

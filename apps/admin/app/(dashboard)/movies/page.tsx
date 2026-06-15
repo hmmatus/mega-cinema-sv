@@ -68,7 +68,7 @@ export default function MoviesPage() {
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="text-red-800">{error}</p>
+          <p className="text-red-800">{error instanceof Error ? error.message : String(error)}</p>
         </div>
       )}
 
@@ -82,17 +82,17 @@ export default function MoviesPage() {
       {total > 0 && (
         <div className="flex items-center justify-between text-sm text-gray-600">
           <p>
-            Showing {(offset ?? 0) + 1} to{' '}
-            {Math.min((offset ?? 0) + (limit ?? 10), total)} of{' '}
+            Showing {((offset ?? 0) as number) + 1} to{' '}
+            {Math.min(((offset ?? 0) as number) + ((limit ?? 10) as number), total)} of{' '}
             {total} movies
           </p>
           <div className="flex gap-2">
             <Button
-              disabled={(offset ?? 0) === 0 || isLoading}
+              disabled={((offset ?? 0) as number) === 0 || isLoading}
               onClick={() =>
                 setParams((prev) => ({
                   ...prev,
-                  offset: Math.max(0, (prev.offset ?? 0) - (prev.limit ?? 10)),
+                  offset: Math.max(0, ((prev.offset ?? 0) as number) - ((prev.limit ?? 10) as number)),
                 }))
               }
               className="border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
@@ -101,12 +101,12 @@ export default function MoviesPage() {
             </Button>
             <Button
               disabled={
-                (offset ?? 0) + (limit ?? 10) >= total || isLoading
+                ((offset ?? 0) as number) + ((limit ?? 10) as number) >= total || isLoading
               }
               onClick={() =>
                 setParams((prev) => ({
                   ...prev,
-                  offset: (prev.offset ?? 0) + (prev.limit ?? 10),
+                  offset: ((prev.offset ?? 0) as number) + ((prev.limit ?? 10) as number),
                 }))
               }
               className="border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"

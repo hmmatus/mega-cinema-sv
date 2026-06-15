@@ -1,7 +1,7 @@
-import type { MovieFormInput } from '@/src/domain/movies';
+import type { MovieFormInput, Movie } from '@/src/domain/movies';
 
 export interface MovieFormProps {
-  initialData?: MovieFormInput & { id?: string };
+  initialData?: Partial<Movie> | MovieFormInput;
   onSubmit: (data: MovieFormInput) => Promise<void> | void;
   isLoading?: boolean;
   error?: Error | null;
