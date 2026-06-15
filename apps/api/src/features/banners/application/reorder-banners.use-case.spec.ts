@@ -5,10 +5,10 @@ import { BANNER_REPOSITORY } from '../domain/ports/banner.repository';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AuditService } from '../../audit/audit.service';
 
-const mockRepo = { reorder: jest.fn() };
-const mockAudit = { log: jest.fn().mockResolvedValue(undefined) };
+const mockRepo = { reorder: vi.fn() };
+const mockAudit = { log: vi.fn().mockResolvedValue(undefined) };
 const mockTx = {};
-const mockPrisma = { $transaction: jest.fn((fn: any) => fn(mockTx)) };
+const mockPrisma = { $transaction: vi.fn((fn: any) => fn(mockTx)) };
 
 describe('ReorderBannersUseCase', () => {
   let useCase: ReorderBannersUseCase;
@@ -24,7 +24,7 @@ describe('ReorderBannersUseCase', () => {
     }).compile();
 
     useCase = module.get<ReorderBannersUseCase>(ReorderBannersUseCase);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('throws BadRequestException for duplicate IDs', async () => {

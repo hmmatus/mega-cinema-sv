@@ -4,7 +4,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 const mockPrismaService = {
   auditLog: {
-    create: jest.fn().mockResolvedValue({}),
+    create: vi.fn().mockResolvedValue({}),
   },
 };
 
@@ -20,7 +20,7 @@ describe('AuditService', () => {
     }).compile();
 
     service = module.get<AuditService>(AuditService);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('writes audit log with correct payload', async () => {
