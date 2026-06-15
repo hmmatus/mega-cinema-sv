@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { DatePickerProps } from './types';
+import type { DatePickerProps, DateRangePickerProps } from './types';
 
 export function DatePicker({
   value,
@@ -119,8 +119,14 @@ export function DatePicker({
   );
 }
 
-export function DateRangePicker(props: DateRangePickerProps) {
-  const { startDate, endDate, onStartDateChange, onEndDateChange, minDate, maxDate } = props;
+export function DateRangePicker({
+  startDate,
+  endDate,
+  onStartDateChange,
+  onEndDateChange,
+  minDate,
+  maxDate,
+}: DateRangePickerProps) {
   return (
     <div className="flex gap-4">
       <div>

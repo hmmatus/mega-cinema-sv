@@ -6,7 +6,7 @@ import type { Column, SortDirection } from './types';
 export function useTable<T>({
   onSort,
 }: {
-  onSort?: (key: keyof T, direction: SortDirection) => void;
+  onSort?: (key: keyof T, direction: 'asc' | 'desc') => void;
 }) {
   const [sortKey, setSortKey] = useState<keyof T | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
