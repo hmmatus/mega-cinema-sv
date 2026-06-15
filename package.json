@@ -19,13 +19,16 @@
     "api:lint": "pnpm --filter @cinema/api lint"
   },
   "devDependencies": {
-    "turbo": "^2.5.0",
     "prettier": "^3.5.0",
+    "turbo": "^2.5.0",
     "typescript": "^5.7.0"
   },
   "engines": {
     "node": ">=20",
     "pnpm": ">=9"
   },
-  "packageManager": "pnpm@9.15.0"
+  "packageManager": "pnpm@9.15.0",
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
 }
