@@ -1,26 +1,52 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import { MoviesList } from './MoviesList';
-import type { MovieStatus, MovieVisibility } from '@cinema/database';
+import type { Movie } from '@/src/domain/movies';
 
-const mockMovies = [
+const mockMovies: Movie[] = [
   {
-    id: '1',
+    id: '550e8400-e29b-41d4-a716-446655440000',
     title: 'The Matrix',
-    status: 'RELEASED' as MovieStatus,
-    visibility: 'PUBLIC' as MovieVisibility,
+    description: 'A sci-fi classic',
+    durationMinutes: 136,
+    rating: 'R',
+    originalLanguage: 'English',
+    status: 'RELEASED',
+    releaseDate: new Date('1999-03-31'),
     posterUrl: 'https://example.com/matrix.jpg',
-    createdAt: '2024-01-01',
-    updatedAt: '2024-01-02',
+    trailerUrl: 'https://example.com/trailer.mp4',
+    director: 'Lana Wachowski, Lilly Wachowski',
+    genres: ['Sci-Fi', 'Action'],
+    cast: ['Keanu Reeves', 'Laurence Fishburne'],
+    featured: true,
+    visibility: 'PUBLIC',
+    metadata: null,
+    createdById: '550e8400-e29b-41d4-a716-446655440001',
+    updatedById: '550e8400-e29b-41d4-a716-446655440001',
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-02'),
   },
   {
-    id: '2',
+    id: '550e8400-e29b-41d4-a716-446655440002',
     title: 'Inception',
-    status: 'UPCOMING' as MovieStatus,
-    visibility: 'PUBLIC' as MovieVisibility,
+    description: 'A mind-bending thriller',
+    durationMinutes: 148,
+    rating: 'PG13',
+    originalLanguage: 'English',
+    status: 'UPCOMING',
+    releaseDate: new Date('2010-07-16'),
     posterUrl: 'https://example.com/inception.jpg',
-    createdAt: '2024-01-03',
-    updatedAt: '2024-01-04',
+    trailerUrl: 'https://example.com/inception-trailer.mp4',
+    director: 'Christopher Nolan',
+    genres: ['Sci-Fi', 'Thriller'],
+    cast: ['Leonardo DiCaprio', 'Marion Cotillard'],
+    featured: true,
+    visibility: 'PUBLIC',
+    metadata: null,
+    createdById: '550e8400-e29b-41d4-a716-446655440001',
+    updatedById: '550e8400-e29b-41d4-a716-446655440001',
+    createdAt: new Date('2024-01-03'),
+    updatedAt: new Date('2024-01-04'),
   },
 ];
 

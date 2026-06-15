@@ -86,18 +86,16 @@ export function MoviesList({
       render: (movieId: string) => (
         <div className="flex gap-2">
           <Button
-            variant="outline"
             size="sm"
             onClick={() => onEdit(movieId)}
-            className="text-blue-600 hover:bg-blue-50"
+            className="border border-blue-300 bg-blue-50 text-blue-600 hover:bg-blue-100"
           >
             Editar
           </Button>
           <Button
-            variant="outline"
             size="sm"
             onClick={() => onDelete(movieId)}
-            className="text-red-600 hover:bg-red-50"
+            className="border border-red-300 bg-red-50 text-red-600 hover:bg-red-100"
           >
             Eliminar
           </Button>
