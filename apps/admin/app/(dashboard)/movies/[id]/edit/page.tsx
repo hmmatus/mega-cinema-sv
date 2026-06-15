@@ -14,11 +14,11 @@ interface EditMoviePageProps {
 export default function EditMoviePage({ params }: EditMoviePageProps) {
   const router = useRouter();
   const { movie, isLoading: isLoadingMovie } = useMovieDetails(params.id);
-  const { isLoading, error, updateMovie } = useMovieForm();
+  const { update } = useMovieForm();
 
   const handleSubmit = async (formData: any) => {
     try {
-      await updateMovie(params.id, formData);
+      await update.mutate(params.id, formData);
       router.push(`/dashboard/movies/${params.id}`);
     } catch (err) {
       console.error('Failed to update movie:', err);
@@ -39,8 +39,8 @@ export default function EditMoviePage({ params }: EditMoviePageProps) {
       <MovieForm
         initialData={movie}
         onSubmit={handleSubmit}
-        isLoading={isLoading}
-        error={error}
+        isLoading={update.isPending}
+        error={update.error}
         onCancel={handleCancel}
       />
     </div>

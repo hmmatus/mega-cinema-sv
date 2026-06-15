@@ -15,7 +15,7 @@ export default function MoviesPage() {
     offset: 0,
   });
 
-  const { movies, isLoading, error, totalCount } = useMoviesList(params);
+  const { movies, isLoading, error, total, limit, offset } = useMoviesList(params);
 
   const handleEdit = (id: string) => {
     router.push(`/dashboard/movies/${id}/edit`);
@@ -28,26 +28,10 @@ export default function MoviesPage() {
     }
   };
 
-  const handleSearch = (query: string) => {
+  const handleFilterChange = (filters: any) => {
     setParams((prev) => ({
       ...prev,
-      search: query || undefined,
-      offset: 0,
-    }));
-  };
-
-  const handleStatusChange = (status: string | undefined) => {
-    setParams((prev) => ({
-      ...prev,
-      status,
-      offset: 0,
-    }));
-  };
-
-  const handleVisibilityChange = (visibility: string | undefined) => {
-    setParams((prev) => ({
-      ...prev,
-      visibility: visibility as any,
+      ...filters,
       offset: 0,
     }));
   };
@@ -69,10 +53,16 @@ export default function MoviesPage() {
       </div>
 
       <MovieFilters
-        onSearch={handleSearch}
-        onStatusChange={handleStatusChange}
-        onVisibilityChange={handleVisibilityChange}
-        onReset={handleReset}
+        onFilterChange={handleFilterChange}
+        onClear={handleReset}
+        statusOptions={[
+          { label: 'Active', value: 'active' },
+          { label: 'Inactive', value: 'inactive' },
+        ]}
+        visibilityOptions={[
+          { label: 'Public', value: 'public' },
+          { label: 'Private', value: 'private' },
+        ]}
         isLoading={isLoading}
       />
 
@@ -89,37 +79,37 @@ export default function MoviesPage() {
         onDelete={handleDelete}
       />
 
-      {totalCount > 0 && (
+      {total > 0 && (
         <div className="flex items-center justify-between text-sm text-gray-600">
           <p>
-            Showing {params.offset! + 1} to{' '}
-            {Math.min(params.offset! + params.limit!, totalCount)} of{' '}
-            {totalCount} movies
+            Showing {(offset ?? 0) + 1} to{' '}
+            {Math.min((offset ?? 0) + (limit ?? 10), total)} of{' '}
+            {total} movies
           </p>
           <div className="flex gap-2">
             <Button
-              variant="outline"
-              disabled={params.offset === 0 || isLoading}
+              disabled={(offset ?? 0) === 0 || isLoading}
               onClick={() =>
                 setParams((prev) => ({
                   ...prev,
-                  offset: Math.max(0, prev.offset! - prev.limit!),
+                  offset: Math.max(0, (prev.offset ?? 0) - (prev.limit ?? 10)),
                 }))
               }
+              className="border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
             >
               Previous
             </Button>
             <Button
-              variant="outline"
               disabled={
-                params.offset! + params.limit! >= totalCount || isLoading
+                (offset ?? 0) + (limit ?? 10) >= total || isLoading
               }
               onClick={() =>
                 setParams((prev) => ({
                   ...prev,
-                  offset: prev.offset! + prev.limit!,
+                  offset: (prev.offset ?? 0) + (prev.limit ?? 10),
                 }))
               }
+              className="border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
             >
               Next
             </Button>
